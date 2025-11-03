@@ -32,7 +32,7 @@ class AuthService {
    */
   async login(credentials: LoginCredentials): Promise<User> {
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // Mock successful login for any credentials
     // In production, you would validate credentials here

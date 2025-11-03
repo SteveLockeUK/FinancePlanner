@@ -1,4 +1,4 @@
-import { authService } from '../../services/authService'
+import Header from '../sections/header/Header'
 import './Dashboard.css'
 
 interface DashboardProps {
@@ -6,19 +6,9 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ onLogout }: DashboardProps) {
-  const user = authService.getCurrentUser()
-
   return (
     <div className="dashboard-container">
-      <header className="dashboard-header">
-        <h1>Finance Planner</h1>
-        <div className="user-info">
-          {user && <span>Welcome, {user.name}</span>}
-          <button onClick={onLogout} className="logout-button">
-            Logout
-          </button>
-        </div>
-      </header>
+      <Header onLogout={onLogout} />
       <main className="dashboard-main">
         <div className="card">
           <h2>Dashboard</h2>
