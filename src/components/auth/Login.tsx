@@ -1,10 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { authService, type LoginCredentials } from '@/services/authService';
 
-interface LoginProps {
-  onLoginSuccess: () => void;
-}
-
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,11 +25,11 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-700 p-4 sm:p-8">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary-950 via-primary-800 to-primary-600 p-4 sm:p-8">
       <div className="bg-white rounded-2xl shadow-2xl p-8 sm:p-12 w-full max-w-md backdrop-blur-sm">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-3 tracking-tight">Finance Planner</h1>
-          <h2 className="text-2xl font-semibold text-emerald-700 mb-3">Welcome Back</h2>
+          <h2 className="text-2xl font-semibold text-primary-700 mb-3">Welcome Back</h2>
           <p className="text-gray-600 text-sm mt-2">Enter your credentials to continue</p>
         </div>
 
@@ -51,7 +47,7 @@ export default function Login() {
               required
               disabled={loading}
               autoComplete="email"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 hover:border-gray-400"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 hover:border-gray-400"
             />
           </div>
 
@@ -68,7 +64,7 @@ export default function Login() {
               required
               disabled={loading}
               autoComplete="current-password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 hover:border-gray-400"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 hover:border-gray-400"
             />
           </div>
 
@@ -84,7 +80,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading || !email || !password}
-            className="w-full px-6 py-3.5 bg-gradient-to-r from-emerald-700 to-emerald-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl hover:from-emerald-600 hover:to-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0"
+            className="btn-full"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">

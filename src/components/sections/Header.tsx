@@ -2,15 +2,26 @@ import { authService } from '@/services/authService'
 
 interface HeaderProps {
     onLogout: () => void
+    onMenuToggle: () => void
 }
 
-export default function Header({ onLogout }: HeaderProps) {
+export default function Header({ onLogout, onMenuToggle }: HeaderProps) {
     const user = authService.getCurrentUser()
 
     return (
-        <header className="bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-600 text-white px-4 sm:px-6 lg:px-8 py-4 sm:py-5 shadow-lg border-b border-emerald-900/20">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <header className="bg-gradient-to-r from-primary-950 via-primary-700 to-primary-600 text-white px-4 sm:px-6 lg:px-8 py-4 sm:py-5 shadow-lg border-b border-primary-900/20">
+          <div className="mx-auto flex justify-between">
             <div className="flex items-center gap-3">
+              {/* Mobile menu button */}
+              <button
+                onClick={onMenuToggle}
+                className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+                aria-label="Toggle menu"
+              >
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
               <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
