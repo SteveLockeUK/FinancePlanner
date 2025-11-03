@@ -3,7 +3,6 @@ import Login from './components/auth/Login'
 import Dashboard from './components/dashboard/Dashboard'
 import { authService } from './services/authService'
 import LoadingSpinner from './components/ui/LoadingSpinner'
-import './App.css'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
