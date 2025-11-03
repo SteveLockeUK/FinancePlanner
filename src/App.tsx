@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import Login from './components/Login'
-import Dashboard from './components/Dashboard'
+import Login from './components/auth/Login'
+import Dashboard from './components/dashboard/Dashboard'
 import { authService } from './services/authService'
+import LoadingSpinner from './components/ui/LoadingSpinner'
 import './App.css'
 
 function App() {
@@ -30,9 +31,7 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner">Loading...</div>
-      </div>
+      <LoadingSpinner />
     )
   }
 

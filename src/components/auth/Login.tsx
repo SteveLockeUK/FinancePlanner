@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { authService, type LoginCredentials } from '../services/authService';
+import { authService, type LoginCredentials } from '../../services/authService';
 import './Login.css';
 
 interface LoginProps {
