@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react';
-import { authService, type LoginCredentials } from '../../services/authService';
+import { authService, type LoginCredentials } from '@/services/authService';
 
 interface LoginProps {
   onLoginSuccess: () => void;
 }
 
-export default function Login({ onLoginSuccess }: LoginProps) {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,7 +19,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     try {
       const credentials: LoginCredentials = { email, password };
       await authService.login(credentials);
-      onLoginSuccess();
+      window.location.href='/'
     } catch (err) {
       setError('Login failed. Please try again.');
       console.error('Login error:', err);

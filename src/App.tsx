@@ -1,44 +1,19 @@
-import { useState, useEffect } from 'react'
-import Login from './components/auth/Login'
-import Dashboard from './components/dashboard/Dashboard'
-import { authService } from './services/authService'
-import LoadingSpinner from './components/ui/LoadingSpinner'
+import Login from '@/components/auth/Login'
+import Dashboard from '@/components/dashboard/Dashboard'
+import Layout from '@/components/sections/Layout'
+import ProtectedRoute from '@/routing/ProtectedRoute'
+import { Routes, Route } from 'react-router-dom'
 
-function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
 
-  useEffect(() => {
-    // Check authentication status on mount
-    const checkAuth = () => {
-      const authenticated = authService.isAuthenticated()
-      setIsAuthenticated(authenticated)
-      setIsLoading(false)
-    }
-
-    checkAuth()
-  }, [])
-
-  const handleLoginSuccess = () => {
-    setIsAuthenticated(true)
-  }
-
-  const handleLogout = () => {
-    authService.logout()
-    setIsAuthenticated(false)
-  }
-
-  if (isLoading) {
-    return (
-      <LoadingSpinner />
-    )
-  }
-
-  if (!isAuthenticated) {
-    return <Login onLoginSuccess={handleLoginSuccess} />
-  }
-
-  return <Dashboard onLogout={handleLogout} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Dashboard />}/>
+        </Route>
+      </Route>
+    </Routes>
+  )  
 }
-
-export default App
