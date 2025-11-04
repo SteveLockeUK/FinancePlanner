@@ -53,7 +53,6 @@ export default function DataTable<T extends Record<string, any>>({
   entityName,
   columns,
   rows,
-  pageSize = 10,
   showPagination = true,
   showSearch = true,
   onAdd,
@@ -75,7 +74,8 @@ export default function DataTable<T extends Record<string, any>>({
   const [sortDirection, setSortDirection] = useState<SortDirection>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  
+  const [pageSize, setPageSize] = useState(10)
+
   // Dialog states
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -242,7 +242,7 @@ export default function DataTable<T extends Record<string, any>>({
 
   const handleSaveAdd = async () => {
     if (!onSaveAdd) return
-    
+
     // Validate required fields
     for (const col of editEntityColumns) {
       if (col.fieldConfig?.required) {
@@ -250,9 +250,9 @@ export default function DataTable<T extends Record<string, any>>({
         // Check if value is missing - for numbers, 0 is valid, so check for null/undefined
         // For strings, empty string is invalid
         // For dates, null/undefined is invalid
-        if (value === undefined || value === null || 
-            (typeof value === 'string' && value.trim() === '') ||
-            (col.fieldConfig.type === 'select' && value === '')) {
+        if (value === undefined || value === null ||
+          (typeof value === 'string' && value.trim() === '') ||
+          (col.fieldConfig.type === 'select' && value === '')) {
           return // Don't save if required field is missing
         }
       }
@@ -272,7 +272,7 @@ export default function DataTable<T extends Record<string, any>>({
 
   const handleSaveEdit = async () => {
     if (!onSaveEdit || !selectedRow) return
-    
+
     // Validate required fields
     for (const col of editEntityColumns) {
       if (col.fieldConfig?.required) {
@@ -280,9 +280,9 @@ export default function DataTable<T extends Record<string, any>>({
         // Check if value is missing - for numbers, 0 is valid, so check for null/undefined
         // For strings, empty string is invalid
         // For dates, null/undefined is invalid
-        if (value === undefined || value === null || 
-            (typeof value === 'string' && value.trim() === '') ||
-            (col.fieldConfig.type === 'select' && value === '')) {
+        if (value === undefined || value === null ||
+          (typeof value === 'string' && value.trim() === '') ||
+          (col.fieldConfig.type === 'select' && value === '')) {
           return
         }
       }
@@ -474,25 +474,25 @@ export default function DataTable<T extends Record<string, any>>({
       if (!col.fieldConfig?.required) {
         return true
       }
-      
+
       const value = formData[col.key]
       const fieldType = col.fieldConfig.type
-      
+
       // For numbers, 0 is valid, so only check for null/undefined
       if (fieldType === 'number') {
         return value !== undefined && value !== null
       }
-      
+
       // For select fields, empty string is invalid
       if (fieldType === 'select') {
         return value !== undefined && value !== null && value !== ''
       }
-      
+
       // For strings (including text and textarea), empty string is invalid
       if (fieldType === 'text' || fieldType === 'textarea' || (fieldType === undefined && typeof value === 'string')) {
         return typeof value === 'string' && value.trim() !== ''
       }
-      
+
       // For dates and other types, check for null/undefined
       return value !== undefined && value !== null
     })
@@ -589,9 +589,8 @@ export default function DataTable<T extends Record<string, any>>({
                         return (
                           <td
                             key={column.key}
-                            className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${
-                              colIndex < columns.length - 1 || showActionsColumn ? 'border-r border-gray-200' : ''
-                            }`}
+                            className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${colIndex < columns.length - 1 || showActionsColumn ? 'border-r border-gray-200' : ''
+                              }`}
                           >
                             {column.render ? column.render(value, row) : value}
                           </td>
@@ -636,7 +635,7 @@ export default function DataTable<T extends Record<string, any>>({
         </div>
 
         {/* Pagination */}
-        {showPagination && totalPages > 1 && (
+        {showPagination && (
           <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
             <div className="text-sm text-gray-700">
               Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
@@ -644,6 +643,14 @@ export default function DataTable<T extends Record<string, any>>({
               <span className="font-medium">{sortedRows.length}</span> results
             </div>
             <div className="flex items-center gap-2">
+              <select
+                className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                value={pageSize} onChange={(e) => setPageSize(Number(e.target.value))} >
+                <option value="10">10</option>
+                <option value="20">15</option>
+                <option value="50">25</option>
+                <option value="100">50</option>
+              </select>
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
@@ -663,11 +670,10 @@ export default function DataTable<T extends Record<string, any>>({
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
-                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                          currentPage === page
+                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${currentPage === page
                             ? 'bg-primary-600 text-white'
                             : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
-                        }`}
+                          }`}
                       >
                         {page}
                       </button>
