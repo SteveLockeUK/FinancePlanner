@@ -25,8 +25,8 @@ export default function Layout() {
             <Header onLogout={handleLogout} onMenuToggle={toggleMenu} />
             <div className="flex flex-1 relative overflow-hidden min-h-0">
                 <Navigation isOpen={isMenuOpen} onClose={closeMenu} />
-                <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full overflow-y-auto">
-                    <div className="max-w-7xl mx-auto">
+                <main className="flex-1 p-4 sm:p-6 w-full overflow-y-auto">
+                    <div className="mx-auto">
                         <Outlet />
                     </div>
                 </main>
