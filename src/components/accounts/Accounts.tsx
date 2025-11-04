@@ -60,7 +60,7 @@ export default function Accounts() {
             label: 'Starting Balance',
             sortable: true,
             filterable: true,
-            editable: false,
+            editable: true,
             requiredOnAdd: true,
             fieldConfig: {
                 type: 'number',
