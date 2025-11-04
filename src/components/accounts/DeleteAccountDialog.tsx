@@ -44,9 +44,15 @@ export default function DeleteAccountDialog({ isOpen, onClose, onDelete, account
                                     <p className="text-base font-semibold text-gray-900 mt-1">{account.name}</p>
                                 </div>
                                 <div>
-                                    <span className="text-sm font-medium text-gray-600">Balance:</span>
+                                    <span className="text-sm font-medium text-gray-600">Currency:</span>
                                     <p className="text-base font-semibold text-gray-900 mt-1">
-                                        {account.balance.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}
+                                        {account.currency}
+                                    </p>
+                                </div>
+                                <div>
+                                    <span className="text-sm font-medium text-gray-600">Type:</span>
+                                    <p className="text-base font-semibold text-gray-900 mt-1">
+                                        {account.type}
                                     </p>
                                 </div>
                             </div>

@@ -5,12 +5,20 @@ const DEFAULT_ACCOUNTS: Account[] = [
     {
         id: 1,
         name: 'Current Account',
-        balance: 2000.00,
+        startingBalance: 2000.00,
+        type: 'Current',
+        currency: 'GBP',
+        createdAt: new Date(),
+        updatedAt: new Date(),
     },
     {
         id: 2,
         name: 'Savings Account',
-        balance: 1000.00,
+        startingBalance: 1000.00,
+        type: 'Savings',
+        currency: 'GBP',
+        createdAt: new Date(),
+        updatedAt: new Date(),
     }
 ]
 

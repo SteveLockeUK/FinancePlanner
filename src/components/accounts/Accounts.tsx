@@ -4,6 +4,7 @@ import Table, { type ColumnDef } from '@/components/ui/Table'
 import AddAccountDialog from './AddAccountDialog'
 import EditAccountDialog from './EditAccountDialog'
 import type Account from '@/data/models/Account'
+import type { AccountType } from '@/data/models/AccountType'
 import { accountStore } from '@/data/stores/AccountStore'
 import DeleteAccountDialog from './DeleteAccountDialog'
 
@@ -29,12 +30,36 @@ export default function Accounts() {
             render: (value: string) => value,
         },
         {
-            key: 'balance',
-            label: 'Balance',
+            key: 'currency',
+            label: 'Currency',
             sortable: true,
             filterable: true,
             editable: true,
-            render: (value: number) => <div className='text-right'>{value.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}</div>,
+            render: (value: string) => value,
+        },        
+        {
+            key: 'type',
+            label: 'Type',
+            sortable: true,
+            filterable: true,
+            editable: true,
+            render: (value: AccountType) => value,
+        },
+        {
+            key: 'createdAt',
+            label: 'Created At',
+            sortable: true,
+            filterable: true,
+            editable: true,
+            render: (value: Date) => new Date(value).toLocaleDateString('en-GB'),
+        },
+        {
+            key: 'updatedAt',
+            label: 'Updated At',
+            sortable: true,
+            filterable: true,
+            editable: true,
+            render: (value: Date) => new Date(value).toLocaleDateString('en-GB')
         }
     ]
 

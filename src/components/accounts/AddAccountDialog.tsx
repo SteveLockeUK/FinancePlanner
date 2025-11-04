@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Dialog from '@/components/ui/Dialog'
 import type Account from '@/data/models/Account'
+import { ACCOUNT_TYPES, type AccountType } from '@/data/models/AccountType'
 
 interface AddAccountDialogProps {
     isOpen: boolean
@@ -9,28 +10,32 @@ interface AddAccountDialogProps {
 }
 
 export default function AddAccountDialog({ isOpen, onClose, onSave }: AddAccountDialogProps) {
-    const [formData, setFormData] = useState({ name: '', initialBalance: '' })
+    const [formData, setFormData] = useState({ name: '', startingBalance: '', type: 'Current', currency: 'GBP' })
 
     // Reset form when dialog opens/closes
     useEffect(() => {
         if (!isOpen) {
-            setFormData({ name: '', initialBalance: '' })
+            setFormData({ name: '', startingBalance: '', type: 'Current', currency: 'GBP' })
         }
     }, [isOpen])
 
     const handleSave = () => {
-        if (!formData.name.trim() || !formData.initialBalance.trim()) {
+        if (!formData.name.trim() || !formData.startingBalance.trim()) {
             return
         }
 
-        const initialBalance = parseFloat(formData.initialBalance)
-        if (isNaN(initialBalance)) {
+        const startingBalance = parseFloat(formData.startingBalance)
+        if (isNaN(startingBalance)) {
             return
         }
 
         onSave({
             name: formData.name.trim(),
-            balance: initialBalance,
+            startingBalance: startingBalance,
+            type: 'Current',
+            currency: 'GBP',
+            createdAt: new Date(),
+            updatedAt: new Date(),
         })
 
         onClose()
@@ -63,15 +68,37 @@ export default function AddAccountDialog({ isOpen, onClose, onSave }: AddAccount
                         />
                     </div>
                     <div>
-                        <label htmlFor="initialBalance" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
+                            Type
+                        </label>
+                        <select id="type" value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value as AccountType })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors">
+                            {ACCOUNT_TYPES.map((type) => (
+                                <option key={type} value={type}>{type}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
+                            Currency
+                        </label>
+                        <select id="currency" value={formData.currency} onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors">
+                            <option value="GBP">GBP</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor="startingBalance" className="block text-sm font-medium text-gray-700 mb-2">
                             Initial Balance
                         </label>
                         <input
                             type="number"
-                            id="initialBalance"
+                            id="startingBalance"
                             step="0.01"
-                            value={formData.initialBalance}
-                            onChange={(e) => setFormData({ ...formData, initialBalance: e.target.value })}
+                            value={formData.startingBalance}
+                            onChange={(e) => setFormData({ ...formData, startingBalance: e.target.value })}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors"
                             placeholder="0.00"
                         />
@@ -87,7 +114,7 @@ export default function AddAccountDialog({ isOpen, onClose, onSave }: AddAccount
                     </button>
                     <button
                         type="submit"
-                        disabled={!formData.name.trim() || !formData.initialBalance.trim() || isNaN(parseFloat(formData.initialBalance))}
+                        disabled={!formData.name.trim() || !formData.startingBalance.trim() || isNaN(parseFloat(formData.startingBalance))}
                         className="btn flex-1"
                     >
                         Save
