@@ -1,6 +1,6 @@
 
-export interface Transaction {
-    id: string;
+export default interface Transaction {
+    id: number;
     userId: string;
     description: string;
     type: 'income' | 'expense' | 'transfer';

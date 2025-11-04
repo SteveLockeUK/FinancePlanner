@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import Dialog from '@/components/ui/Dialog'
 
-export type FieldType = 'text' | 'number' | 'select' | 'date' | 'textarea'
+export type FieldType = 'text' | 'number' | 'select' | 'date' | 'textarea' | 'checkbox'
 
 export interface FieldConfig {
   type?: FieldType
@@ -427,6 +427,22 @@ export default function DataTable<T extends Record<string, any>>({
               placeholder={fieldConfig.placeholder}
               rows={4}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors disabled:bg-gray-100"
+            />
+          </div>
+        )
+      case 'checkbox':
+        return (
+          <div key={column.key}>
+            <label htmlFor={column.key} className="block text-sm font-medium text-gray-700 mb-2">
+              {column.label}
+              {fieldConfig.required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <input
+              type="checkbox"
+              id={column.key}
+              checked={value ?? false}
+              onChange={(e) => handleChange(e.target.checked)}
+              disabled={isReadonly}
             />
           </div>
         )

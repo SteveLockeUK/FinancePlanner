@@ -1,9 +1,10 @@
+import type { CategoryType } from "./CategoryTypes";
 
-export interface Category {
-    id: string;
+export default interface Category {
+    id: number;
     userId: string;
     name: string;
-    type: 'income' | 'expense';
+    type: CategoryType;
     color?: string;
     icon?: string;
 }

@@ -1,17 +1,21 @@
+import type { RecurringPaymentFrequency } from "./RecurringPaymentFrequencies";
+import type { RecurringPaymentType } from "./RecurringPaymentTypes";
 
-export interface RecurringPayment {
-    id: string;
+export default interface RecurringPayment {
+    id: number;
     userId: string;
-    description: string;
-    type: 'standingOrder' | 'directDebit' | 'income' | 'transfer';
+    name: string;
+    description?: string;
+    type: RecurringPaymentType;
     amount: number;
-    frequency: 'weekly' | 'monthly' | 'yearly';
-    startDate: string;
-    endDate?: string;
-    fromAccountId?: string;
-    toAccountId?: string;
-    categoryId?: string;
+    frequency: RecurringPaymentFrequency;
+    startDate: Date;
+    endDate?: Date;
+    fromAccountId?: number;
+    toAccountId?: number;
+    categoryId?: number;
     active: boolean;
-    lastGeneratedAt?: string;
-    createdAt: string;
+    lastGeneratedAt?: Date;
+    createdAt: Date;
+    updatedAt?: Date;
 }

@@ -4,6 +4,7 @@ import Accounts from '@/components/accounts/Accounts'
 import Layout from '@/components/sections/Layout'
 import ProtectedRoute from '@/routing/ProtectedRoute'
 import { Routes, Route } from 'react-router-dom'
+import RecurringPayments from './components/recurring-payments/RecurringPayments'
 
 export default function App() {
   return (
@@ -12,10 +13,11 @@ export default function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard />}/>
-          <Route path="/accounts" element={<Accounts />}/>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/accounts" element={<Accounts />} />
+          <Route path="/recurring-payments" element={<RecurringPayments />} />
         </Route>
       </Route>
     </Routes>
-  )  
+  )
 }
