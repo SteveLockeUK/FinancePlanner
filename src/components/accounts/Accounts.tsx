@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react'
-import Title from '@/components/ui/Title'
-import DataTable, { type ColumnDef } from '@/components/ui/DataTable'
-import type Account from '@/data/models/Account'
-import type { AccountType } from '@/data/models/AccountType'
-import { accountStore } from '@/data/stores/AccountStore'
-import { ACCOUNT_TYPES } from '@/data/models/AccountType'
-import { CURRENCIES, type Currency } from '@/data/models/Currencies'
+import { useState, useEffect } from 'react';
+import Title from '@/components/ui/Title';
+import DataTable, { type ColumnDef } from '@/components/ui/DataTable';
+import type Account from '@/data/models/Accounts/Account';
+import type { AccountType } from '@/data/models/Accounts/AccountType';
+import { accountStore } from '@/data/stores/AccountStore';
+import { ACCOUNT_TYPES } from '@/data/models/Accounts/AccountType';
+import { CURRENCIES, type Currency } from '@/data/models/Currencies';
 
 export default function Accounts() {
-    const [rows, setRows] = useState<Account[]>(accountStore.getAccounts())
+    const [rows, setRows] = useState<Account[]>(accountStore.getAccounts());
 
     // Load accounts from store on mount
     useEffect(() => {
-        setRows(accountStore.getAccounts())
-    }, [])
+        setRows(accountStore.getAccounts());
+    }, []);
 
     const columns: ColumnDef<Account>[] = [
         {
@@ -41,7 +41,7 @@ export default function Accounts() {
                 options: CURRENCIES.map(currency => ({label: currency, value: currency}))
             },
             render: (value: Currency) => value,
-        },        
+        },
         {
             key: 'type',
             label: 'Type',
@@ -92,9 +92,9 @@ export default function Accounts() {
                 type: 'date',
                 readonly: true
             },
-            render: (value: Date) => new Date(value).toLocaleDateString('en-GB')
+            render: (value: Date) => new Date(value).toLocaleDateString('en-GB'),
         }
-    ]
+    ];
 
     const handleSaveAdd = (accountData: Partial<Account>) => {
         const newAccount: Omit<Account, 'id'> = {
@@ -104,22 +104,22 @@ export default function Accounts() {
             startingBalance: accountData.startingBalance || 0,
             createdAt: new Date(),
             updatedAt: new Date(),
-        }
-        accountStore.addAccount(newAccount)
-        setRows(accountStore.getAccounts())
+        };
+        accountStore.addAccount(newAccount);
+        setRows(accountStore.getAccounts());
     }
 
     const handleSaveEdit = (account: Account) => {
         accountStore.updateAccount(account.id, {
             ...account,
             updatedAt: new Date()
-        })
-        setRows(accountStore.getAccounts())
+        });
+        setRows(accountStore.getAccounts());
     }
 
     const handleDelete = (account: Account) => {
-        accountStore.deleteAccount(account.id)
-        setRows(accountStore.getAccounts())
+        accountStore.deleteAccount(account.id);
+        setRows(accountStore.getAccounts());
     }
 
     return (

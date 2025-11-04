@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
-import Title from '@/components/ui/Title'
-import Card from '@/components/ui/Card'
-import { accountStore } from '@/data/stores/AccountStore'
-import { recurringPaymentStore } from '@/data/stores/RecurringPaymentStore'
-import type Account from '@/data/models/Account'
-import type RecurringPayment from '@/data/models/RecurringPayment'
+import { useState, useEffect } from 'react';
+import Title from '@/components/ui/Title';
+import Card from '@/components/ui/Card';
+import { accountStore } from '@/data/stores/AccountStore';
+import { recurringPaymentStore } from '@/data/stores/RecurringPaymentStore';
+import type Account from '@/data/models/Accounts/Account';
+import type RecurringPayment from '@/data/models/RecurringPayments/RecurringPayment';
 
 /**
  * Calculate all payment dates for a recurring payment before a given date
@@ -13,58 +13,58 @@ function calculatePaymentDates(
   payment: RecurringPayment,
   beforeDate: Date
 ): Date[] {
-  const dates: Date[] = []
+  const dates: Date[] = [];
   
   // Handle dates from localStorage (they come as strings)
   const startDate = payment.startDate instanceof Date 
     ? new Date(payment.startDate) 
-    : new Date(payment.startDate as string)
+    : new Date(payment.startDate as string);
   const endDate = payment.endDate 
     ? (payment.endDate instanceof Date 
         ? new Date(payment.endDate) 
         : new Date(payment.endDate as string))
-    : null
+    : null;
 
   // Only process active payments
   if (!payment.active) {
-    return dates
+    return dates;
   }
 
   // Check if payment has ended or hasn't started yet
   if (endDate && endDate < startDate) {
-    return dates
+    return dates;
   }
 
   // If start date is in the future, no payments yet
   if (startDate >= beforeDate) {
-    return dates
+    return dates;
   }
 
-  let currentDate = new Date(startDate)
+  let currentDate = new Date(startDate);
 
   while (currentDate < beforeDate) {
     // Check if payment has ended
     if (endDate && currentDate > endDate) {
-      break
+      break;
     }
 
-    dates.push(new Date(currentDate))
+    dates.push(new Date(currentDate));
 
     // Calculate next payment date based on frequency
     switch (payment.frequency) {
       case 'Weekly':
-        currentDate.setDate(currentDate.getDate() + 7)
-        break
+        currentDate.setDate(currentDate.getDate() + 7);
+        break;
       case 'Monthly':
-        currentDate.setMonth(currentDate.getMonth() + 1)
-        break
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        break;
       case 'Yearly':
-        currentDate.setFullYear(currentDate.getFullYear() + 1)
-        break
+        currentDate.setFullYear(currentDate.getFullYear() + 1);
+        break;
     }
   }
 
-  return dates
+  return dates;
 }
 
 /**
@@ -82,25 +82,25 @@ function calculateAccountBalanceUpTo(
   debugger;
   if (payments) {
     payments.forEach((payment) => {
-      const paymentDates = calculatePaymentDates(payment, beforeDate)
+      const paymentDates = calculatePaymentDates(payment, beforeDate);
       if (paymentDates.length === 0) {
-        return
+        return;
       }
-      balance -= payment.amount * paymentDates.length
-    })
+      balance -= payment.amount * paymentDates.length;
+    });
   }
 
   if (incomePayments) {
     incomePayments.forEach((payment) => {
-      const paymentDates = calculatePaymentDates(payment, beforeDate)
+      const paymentDates = calculatePaymentDates(payment, beforeDate);
       if (paymentDates.length === 0) {
-        return
+        return;
       }
-      balance += payment.amount * paymentDates.length
-    })
+      balance += payment.amount * paymentDates.length;
+    });
   }
 
-  return balance
+  return balance;
 }
 
 /**
@@ -111,11 +111,11 @@ function calculateAccountBalance(
   account: Account,
   recurringPayments: RecurringPayment[]
 ): number {
-  const today = new Date()
+  const today = new Date();
   // Set to end of today (23:59:59.999)
-  const endOfToday = new Date(today)
-  endOfToday.setHours(23, 59, 59, 999)
-  return calculateAccountBalanceUpTo(account, recurringPayments, endOfToday)
+  const endOfToday = new Date(today);
+  endOfToday.setHours(23, 59, 59, 999);
+  return calculateAccountBalanceUpTo(account, recurringPayments, endOfToday);
 }
 
 /**
@@ -127,9 +127,9 @@ function calculateExpectedBalance(
   targetDate: Date
 ): number {
   // Set to end of day (23:59:59.999)
-  const endOfTargetDate = new Date(targetDate)
-  endOfTargetDate.setHours(23, 59, 59, 999)
-  return calculateAccountBalanceUpTo(account, recurringPayments, endOfTargetDate)
+  const endOfTargetDate = new Date(targetDate);
+  endOfTargetDate.setHours(23, 59, 59, 999);
+  return calculateAccountBalanceUpTo(account, recurringPayments, endOfTargetDate);
 }
 
 /**
@@ -139,29 +139,29 @@ function formatCurrency(amount: number, currency: string): string {
   return new Intl.NumberFormat('en-GB', {
     style: 'currency',
     currency: currency,
-  }).format(amount)
+  }).format(amount);
 }
 
 export default function Dashboard() {
-  const [accounts, setAccounts] = useState<Account[]>([])
-  const [recurringPayments, setRecurringPayments] = useState<RecurringPayment[]>([])
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [recurringPayments, setRecurringPayments] = useState<RecurringPayment[]>([]);
   
   // Default to first of next month
   const getDefaultDate = () => {
-    const today = new Date()
-    const firstOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1)
-    return firstOfNextMonth.toISOString().split('T')[0] // Format as YYYY-MM-DD for date input
-  }
+    const today = new Date();
+    const firstOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    return firstOfNextMonth.toISOString().split('T')[0]; // Format as YYYY-MM-DD for date input
+  };
   
-  const [projectionDate, setProjectionDate] = useState<string>(() => getDefaultDate())
+  const [projectionDate, setProjectionDate] = useState<string>(() => getDefaultDate());
 
   useEffect(() => {
-    setAccounts(accountStore.getAccounts())
-    setRecurringPayments(recurringPaymentStore.getRecurringPayments())
-  }, [])
+    setAccounts(accountStore.getAccounts());
+    setRecurringPayments(recurringPaymentStore.getRecurringPayments());
+  }, []);
 
   // Convert date string to Date object for calculations
-  const projectionDateObj = new Date(projectionDate)
+  const projectionDateObj = new Date(projectionDate);
 
   return (
     <div>
@@ -180,10 +180,10 @@ export default function Dashboard() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {accounts.map((account) => {
-          const currentBalance = calculateAccountBalance(account, recurringPayments)
-          const expectedBalance = calculateExpectedBalance(account, recurringPayments, projectionDateObj)
-          const changeFromStart = expectedBalance - account.startingBalance
-          const isPositive = changeFromStart >= 0
+          const currentBalance = calculateAccountBalance(account, recurringPayments);
+          const expectedBalance = calculateExpectedBalance(account, recurringPayments, projectionDateObj);
+          const changeFromStart = expectedBalance - account.startingBalance;
+          const isPositive = changeFromStart >= 0;
 
           return (
             <Card key={account.id} className="p-6">

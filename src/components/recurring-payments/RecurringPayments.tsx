@@ -1,20 +1,20 @@
-import { useState, useEffect } from 'react'
-import Title from '@/components/ui/Title'
-import DataTable, { type ColumnDef } from '@/components/ui/DataTable'
-import type RecurringPayment from '@/data/models/RecurringPayment'
-import { type RecurringPaymentFrequency, RECURRING_PAYMENT_FREQUENCIES } from '@/data/models/RecurringPaymentFrequencies'
-import { type RecurringPaymentType, RECURRING_PAYMENT_TYPES} from '@/data/models/RecurringPaymentTypes'
-import { recurringPaymentStore } from '@/data/stores/RecurringPaymentStore'
-import { accountStore } from '@/data/stores/AccountStore'
-import type Account from '@/data/models/Account'
+import { useState, useEffect } from 'react';
+import Title from '@/components/ui/Title';
+import DataTable, { type ColumnDef } from '@/components/ui/DataTable';
+import type RecurringPayment from '@/data/models/RecurringPayments/RecurringPayment';
+import { type RecurringPaymentFrequency, RECURRING_PAYMENT_FREQUENCIES } from '@/data/models/RecurringPayments/RecurringPaymentFrequencies';
+import { type RecurringPaymentType, RECURRING_PAYMENT_TYPES} from '@/data/models/RecurringPayments/RecurringPaymentTypes';
+import { recurringPaymentStore } from '@/data/stores/RecurringPaymentStore';
+import { accountStore } from '@/data/stores/AccountStore';
+import type Account from '@/data/models/Accounts/Account';
 
 export default function RecurringPayments() {
-    const [rows, setRows] = useState<RecurringPayment[]>(recurringPaymentStore.getRecurringPayments())
-    const [accounts, setAccounts] = useState<Account[]>(accountStore.getAccounts())
+    const [rows, setRows] = useState<RecurringPayment[]>(recurringPaymentStore.getRecurringPayments());
+    const [accounts, setAccounts] = useState<Account[]>(accountStore.getAccounts());
     useEffect(() => {
-        setRows(recurringPaymentStore.getRecurringPayments())
-        setAccounts(accountStore.getAccounts())
-    }, [])
+        setRows(recurringPaymentStore.getRecurringPayments());
+        setAccounts(accountStore.getAccounts());
+    }, []);
 
     const columns: ColumnDef<RecurringPayment>[] = [
         {
@@ -28,7 +28,7 @@ export default function RecurringPayments() {
                 required: true,
                 placeholder: 'Enter recurring payment name'
             },
-            render: (value: string) => value
+            render: (value: string) => value,
         },
         {
             key: 'description',
@@ -40,7 +40,7 @@ export default function RecurringPayments() {
                 type: 'textarea',
                 placeholder: 'Enter recurring payment description'
             },
-            render: (value: string) => value
+            render: (value: string) => value,
         },
         {
             key: 'type',
@@ -53,7 +53,7 @@ export default function RecurringPayments() {
                 required: true,
                 options: RECURRING_PAYMENT_TYPES.map(type => ({label: type, value: type}))
             },
-            render: (value: RecurringPaymentType) => value
+            render: (value: RecurringPaymentType) => value,
         },
         {
             key: 'amount',
@@ -65,7 +65,7 @@ export default function RecurringPayments() {
                 type: 'number',
                 required: true,
             },
-            render: (value: number) => value.toLocaleString('en-GB', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            render: (value: number) => value.toLocaleString('en-GB', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         },
         {
             key: 'frequency',
@@ -78,7 +78,7 @@ export default function RecurringPayments() {
                 required: true,
                 options: RECURRING_PAYMENT_FREQUENCIES.map(frequency => ({label: frequency, value: frequency}))
             },
-            render: (value: RecurringPaymentFrequency) => value
+            render: (value: RecurringPaymentFrequency) => value,
         },
         {
             key: 'startDate',
@@ -90,7 +90,7 @@ export default function RecurringPayments() {
                 type: 'date',
                 required: true,
             },
-            render: (value: Date) => new Date(value).toLocaleDateString('en-GB')
+            render: (value: Date) => new Date(value).toLocaleDateString('en-GB'),
         },
         {
             key: 'endDate',
@@ -101,7 +101,7 @@ export default function RecurringPayments() {
             fieldConfig: {
                 type: 'date',
             },
-            render: (value: Date) => value ? new Date(value).toLocaleDateString('en-GB') : ''
+            render: (value: Date) => value ? new Date(value).toLocaleDateString('en-GB') : '',
         },
         {
             key: 'active',
@@ -113,7 +113,7 @@ export default function RecurringPayments() {
                 type: 'checkbox',
                 required: true,
             },
-            render: (value: boolean) => value ? 'Yes' : 'No'
+            render: (value: boolean) => value ? 'Yes' : 'No',
         },
         {
             key: 'createdAt',
@@ -124,7 +124,7 @@ export default function RecurringPayments() {
             fieldConfig: {
                 type: 'date',
             },
-            render: (value: Date) => new Date(value).toLocaleDateString('en-GB')
+            render: (value: Date) => new Date(value).toLocaleDateString('en-GB'),
         },
         {
             key: 'updatedAt',
@@ -135,7 +135,7 @@ export default function RecurringPayments() {
             fieldConfig: {
                 type: 'date',
             },
-            render: (value: Date) => new Date(value).toLocaleDateString('en-GB')
+            render: (value: Date) => new Date(value).toLocaleDateString('en-GB'),
         },
         {
             key: 'lastGeneratedAt',
@@ -146,7 +146,7 @@ export default function RecurringPayments() {
             fieldConfig: {
                 type: 'date',
             },
-            render: (value: Date) => value ? new Date(value).toLocaleDateString('en-GB') : ''
+            render: (value: Date) => value ? new Date(value).toLocaleDateString('en-GB') : '',
         },
         {
             key: 'fromAccountId',
@@ -159,7 +159,7 @@ export default function RecurringPayments() {
                 required: false,
                 options: accounts.map(account => ({label: account.name, value: account.id}))
             },
-            render: (value: number) => accounts.find(x => x.id == value)?.name || ''
+            render: (value: number) => accounts.find(x => x.id == value)?.name || '',
         },
         {
             key: 'toAccountId',
@@ -172,9 +172,9 @@ export default function RecurringPayments() {
                 required: false,
                 options: accounts.map(account => ({label: account.name, value: account.id}))
             },
-            render: (value: number) => accounts.find(x => x.id == value)?.name || ''
+            render: (value: number) => accounts.find(x => x.id == value)?.name || '',
         }
-    ]
+    ];
 
     const handleSaveAdd = (recurringPaymentData: Partial<RecurringPayment>) => {
         const newRecurringPayment: Omit<RecurringPayment, 'id'> = {
@@ -192,21 +192,21 @@ export default function RecurringPayments() {
             createdAt: new Date(),
             updatedAt: new Date(),
         }
-        recurringPaymentStore.addRecurringPayment(newRecurringPayment)
-        setRows(recurringPaymentStore.getRecurringPayments())
+        recurringPaymentStore.addRecurringPayment(newRecurringPayment);
+        setRows(recurringPaymentStore.getRecurringPayments());
     }
 
     const handleSaveEdit = (recurringPayment: RecurringPayment) => {
         recurringPaymentStore.updateRecurringPayment(recurringPayment.id, {
             ...recurringPayment,
             updatedAt: new Date()
-        })
-        setRows(recurringPaymentStore.getRecurringPayments())
+        });
+        setRows(recurringPaymentStore.getRecurringPayments());
     }
 
     const handleDelete = (recurringPayment: RecurringPayment) => {
-        recurringPaymentStore.deleteRecurringPayment(recurringPayment.id)
-        setRows(recurringPaymentStore.getRecurringPayments())
+        recurringPaymentStore.deleteRecurringPayment(recurringPayment.id);
+        setRows(recurringPaymentStore.getRecurringPayments());
     }
 
     return (
