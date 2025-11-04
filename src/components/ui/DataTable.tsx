@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Dialog from '@/components/ui/Dialog'
 
 export type FieldType = 'text' | 'number' | 'select' | 'date' | 'textarea' | 'checkbox'
@@ -45,6 +45,8 @@ interface DataTableProps<T extends Record<string, any>> {
   onConfirmDelete?: (row: T) => void | Promise<void>
   getRowId?: (row: T) => string | number
   getRowDisplayName?: (row: T) => string
+  defaultSortColumn?: string | null
+  defaultSortDirection?: SortDirection | null
 }
 
 type SortDirection = 'asc' | 'desc' | null
@@ -68,7 +70,9 @@ export default function DataTable<T extends Record<string, any>>({
   getRowDisplayName = (row: T) => {
     const nameColumn = columns.find(col => col.key === 'name' || col.key === 'title')
     return nameColumn ? String(row[nameColumn.key] || '') : `${entityName} #${getRowId(row)}`
-  }
+  },
+  defaultSortColumn = null,
+  defaultSortDirection = null
 }: DataTableProps<T>) {
   const [sortColumn, setSortColumn] = useState<string | null>(null)
   const [sortDirection, setSortDirection] = useState<SortDirection>(null)
@@ -83,6 +87,13 @@ export default function DataTable<T extends Record<string, any>>({
   const [selectedRow, setSelectedRow] = useState<T | null>(null)
   const [formData, setFormData] = useState<Partial<T>>({})
   const [isSaving, setIsSaving] = useState(false)
+
+  useEffect(() => {
+    if(defaultSortColumn && defaultSortDirection) {
+      setSortColumn(defaultSortColumn)
+      setSortDirection(defaultSortDirection)
+    }
+  }, [defaultSortColumn, defaultSortDirection])
 
   // Get editable columns (only those explicitly marked as editable)
   const editEntityColumns = useMemo(() => {
@@ -123,7 +134,10 @@ export default function DataTable<T extends Record<string, any>>({
       let comparison = 0
       if (typeof aValue === 'number' && typeof bValue === 'number') {
         comparison = aValue - bValue
-      } else {
+      } else if (aValue instanceof Date && bValue instanceof Date) {
+        comparison = aValue.toISOString().localeCompare(bValue.toISOString())
+      }
+      else {
         comparison = String(aValue).localeCompare(String(bValue))
       }
 

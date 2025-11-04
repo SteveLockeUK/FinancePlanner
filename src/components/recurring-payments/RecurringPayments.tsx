@@ -222,6 +222,8 @@ export default function RecurringPayments() {
                 onSaveAdd={handleSaveAdd}
                 onSaveEdit={handleSaveEdit}
                 onConfirmDelete={handleDelete}
+                defaultSortColumn={'startDate'}
+                defaultSortDirection='asc'
             />
         </>
     )
