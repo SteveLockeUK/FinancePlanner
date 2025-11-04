@@ -100,7 +100,7 @@ export default function Accounts() {
         const newAccount: Omit<Account, 'id'> = {
             name: accountData.name || '',
             type: (accountData.type as AccountType) || 'Current',
-            currency: accountData.currency || 'GBP',
+            currency: (accountData.currency as Currency) || 'GBP',
             startingBalance: accountData.startingBalance || 0,
             createdAt: new Date(),
             updatedAt: new Date(),

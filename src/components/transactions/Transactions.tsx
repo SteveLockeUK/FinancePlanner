@@ -141,10 +141,10 @@ export default function Transactions() {
             type: (transactionData.type as TransactionType) || 'Expense',
             amount: transactionData.amount || 0,
             date: transactionData.date || new Date(),
-            fromAccountId: transactionData.fromAccountId || undefined,
-            toAccountId: transactionData.toAccountId || undefined,
-            categoryId: transactionData.categoryId || undefined,
-            recurrenceId: transactionData.recurrenceId || undefined,
+            fromAccountId: Number(transactionData.fromAccountId) || undefined,
+            toAccountId: Number(transactionData.toAccountId) || undefined,
+            categoryId: Number(transactionData.categoryId) || undefined,
+            recurrenceId: Number(transactionData.recurrenceId) || undefined,
             createdAt: new Date(),
             updatedAt: new Date(),
         };
@@ -184,4 +184,3 @@ export default function Transactions() {
         </>
     )
 }
-
