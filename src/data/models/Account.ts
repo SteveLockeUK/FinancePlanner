@@ -1,10 +1,11 @@
 import type { AccountType } from "./AccountType"
+import type { Currency } from "./Currencies"
 
 export default interface Account {
     id: number
     name: string
     type: AccountType
-    currency: string
+    currency: Currency
     startingBalance: number
     createdAt: Date
     updatedAt: Date
