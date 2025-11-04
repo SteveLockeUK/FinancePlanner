@@ -13,7 +13,17 @@ class RecurringPaymentStore {
         try {
             const stored = localStorage.getItem(STORAGE_KEY)
             if(stored) {
-                this.recurringPayments = JSON.parse(stored) as RecurringPayment[]
+                let parsed = stored ?JSON.parse(stored) : [];
+                this.recurringPayments = parsed.map((p: RecurringPayment) => ({
+                    ...p,
+                    startDate: new Date(p.startDate),
+                    endDate: p.endDate ? new Date(p.endDate) : undefined,
+                    lastGeneratedAt: p.lastGeneratedAt ? new Date(p.lastGeneratedAt) : undefined,
+                    createdAt: new Date(p.createdAt),
+                    updatedAt: p.updatedAt ? new Date(p.updatedAt) : undefined,
+                    fromAccountId: p.fromAccountId ? Number(p.fromAccountId) : undefined,
+                    toAccountId: p.toAccountId ? Number(p.toAccountId) : undefined,
+                }));
             }
         } catch (error) {
             console.error('Error loading recurring payments from LocalStorage:', error)
@@ -29,7 +39,7 @@ class RecurringPaymentStore {
     }
 
     getRecurringPayments(): RecurringPayment[] {
-        return this.recurringPayments
+        return [...this.recurringPayments]
     }
 
     addRecurringPayment(RecurringPayment: Omit<RecurringPayment, "id">): RecurringPayment {
