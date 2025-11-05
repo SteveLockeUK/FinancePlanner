@@ -560,12 +560,12 @@ export default function DataTable<T extends Record<string, any>>({
                     key={column.key}
                     onClick={() => handleSort(column.key)}
                     className={`
-                      px-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider
+                      px-3 text-xs font-medium text-gray-700 uppercase tracking-wider
                       ${index < columns.length - 1 || showActionsColumn ? 'border-r border-gray-300' : ''}
-                      ${column.sortable !== false ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''}
+                      ${column.sortable !== false ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''}                      
                     `}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className={`flex items-center gap-2 ${column.fieldConfig?.type === 'number' ? 'justify-end' : 'justify-start'}`}>
                       <span><strong>{column.label}</strong></span>
                       {column.sortable !== false && getSortIcon(column.key)}
                     </div>
@@ -604,7 +604,7 @@ export default function DataTable<T extends Record<string, any>>({
                           <td
                             key={column.key}
                             className={`px-3 py-2 whitespace-nowrap text-sm text-gray-900 ${colIndex < columns.length - 1 || showActionsColumn ? 'border-r border-gray-200' : ''
-                              }`}
+                              } ${column.fieldConfig?.type === 'number' ? 'text-right' : 'text-left'}`}
                           >
                             {column.render ? column.render(value, row) : value}
                           </td>
