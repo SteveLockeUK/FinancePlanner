@@ -199,6 +199,11 @@ export default function Dashboard() {
                   </p>
                 </div>
               </div>
+              <Card.Footer>
+                <button className='btn-neutral-small'>
+                  Generate Recurring Transactions
+                </button>
+              </Card.Footer>              
             </Card>
           )
         })}
