@@ -19,6 +19,7 @@ class RecurringPaymentStore {
                     startDate: new Date(p.startDate),
                     endDate: p.endDate ? new Date(p.endDate) : undefined,
                     lastGeneratedAt: p.lastGeneratedAt ? new Date(p.lastGeneratedAt) : undefined,
+                    nextPaymentDate: p.nextPaymentDate ? new Date(p.nextPaymentDate) : undefined,
                     createdAt: new Date(p.createdAt),
                     updatedAt: p.updatedAt ? new Date(p.updatedAt) : undefined,
                     fromAccountId: p.fromAccountId ? Number(p.fromAccountId) : undefined,

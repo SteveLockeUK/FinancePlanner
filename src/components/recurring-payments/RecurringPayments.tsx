@@ -3,7 +3,7 @@ import Title from '@/components/ui/Title';
 import DataTable, { type ColumnDef } from '@/components/ui/DataTable';
 import type RecurringPayment from '@/data/models/RecurringPayments/RecurringPayment';
 import { type RecurringPaymentFrequency, RECURRING_PAYMENT_FREQUENCIES } from '@/data/models/RecurringPayments/RecurringPaymentFrequencies';
-import { type RecurringPaymentType, RECURRING_PAYMENT_TYPES} from '@/data/models/RecurringPayments/RecurringPaymentTypes';
+import { type RecurringPaymentType, RECURRING_PAYMENT_TYPES } from '@/data/models/RecurringPayments/RecurringPaymentTypes';
 import { recurringPaymentStore } from '@/data/stores/RecurringPaymentStore';
 import { accountStore } from '@/data/stores/AccountStore';
 import type Account from '@/data/models/Accounts/Account';
@@ -51,7 +51,7 @@ export default function RecurringPayments() {
             fieldConfig: {
                 type: 'select',
                 required: true,
-                options: RECURRING_PAYMENT_TYPES.map(type => ({label: type, value: type}))
+                options: RECURRING_PAYMENT_TYPES.map(type => ({ label: type, value: type }))
             },
             render: (value: RecurringPaymentType) => value,
         },
@@ -76,7 +76,7 @@ export default function RecurringPayments() {
             fieldConfig: {
                 type: 'select',
                 required: true,
-                options: RECURRING_PAYMENT_FREQUENCIES.map(frequency => ({label: frequency, value: frequency}))
+                options: RECURRING_PAYMENT_FREQUENCIES.map(frequency => ({ label: frequency, value: frequency }))
             },
             render: (value: RecurringPaymentFrequency) => value,
         },
@@ -86,7 +86,7 @@ export default function RecurringPayments() {
             sortable: true,
             filterable: true,
             editable: true,
-            fieldConfig: {                
+            fieldConfig: {
                 type: 'date',
                 required: true,
             },
@@ -149,6 +149,17 @@ export default function RecurringPayments() {
             render: (value: Date) => value ? new Date(value).toLocaleDateString('en-GB') : '',
         },
         {
+            key: 'nextPaymentDate',
+            label: 'Next Payment Date',
+            sortable: true,
+            filterable: true,
+            editable: false,
+            fieldConfig: {
+                type: 'date',
+            },
+            render: (value: Date) => value ? new Date(value).toLocaleDateString('en-GB') : '',
+        },
+        {
             key: 'fromAccountId',
             label: 'From Account',
             sortable: true,
@@ -157,7 +168,7 @@ export default function RecurringPayments() {
             fieldConfig: {
                 type: 'select',
                 required: false,
-                options: accounts.map(account => ({label: account.name, value: account.id}))
+                options: accounts.map(account => ({ label: account.name, value: account.id }))
             },
             render: (value: number) => accounts.find(x => x.id == value)?.name || '',
         },
@@ -170,13 +181,51 @@ export default function RecurringPayments() {
             fieldConfig: {
                 type: 'select',
                 required: false,
-                options: accounts.map(account => ({label: account.name, value: account.id}))
+                options: accounts.map(account => ({ label: account.name, value: account.id }))
             },
             render: (value: number) => accounts.find(x => x.id == value)?.name || '',
         }
     ];
 
+    const calculateNextPaymentDate = (recurringPayment: RecurringPayment): Date | null => {
+        var startDate = 
+            recurringPayment.lastGeneratedAt ||
+            recurringPayment.startDate;
+
+        // We might be going from the last generated date. This might not be the usual day the payment takes place (e.g. if the date fell on a weekend).
+        // So we need to reset to the scheduled date.
+        startDate.setDate(startDate.getDate());
+            
+        const nextPaymentDate = new Date(startDate);
+        switch (recurringPayment.frequency) {
+            case 'Weekly':
+                nextPaymentDate.setDate(nextPaymentDate.getDate() + 7);
+                break;
+            case 'Monthly':
+                nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
+                break;
+            case 'Yearly':
+                nextPaymentDate.setFullYear(nextPaymentDate.getFullYear() + 1);
+                break;
+            default:
+                break;
+        }
+
+        // If the recurring payment hasn't started yet, return null.
+        if(nextPaymentDate < startDate) {
+            return null;
+        }
+
+        // If the recurring payment has ended, return null.
+        if(recurringPayment.endDate && nextPaymentDate > new Date(recurringPayment.endDate)) {
+            return null;
+        }
+
+        return nextPaymentDate;
+    }
+
     const handleSaveAdd = (recurringPaymentData: Partial<RecurringPayment>) => {
+        const nextPaymentDate = calculateNextPaymentDate(recurringPaymentData as RecurringPayment);
         const newRecurringPayment: Omit<RecurringPayment, 'id'> = {
             userId: '',
             name: recurringPaymentData.name || '',
@@ -188,6 +237,7 @@ export default function RecurringPayments() {
             endDate: recurringPaymentData.endDate || undefined,
             fromAccountId: Number(recurringPaymentData.fromAccountId) || undefined,
             toAccountId: Number(recurringPaymentData.toAccountId) || undefined,
+            nextPaymentDate: nextPaymentDate,
             active: recurringPaymentData.active || true,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -199,6 +249,7 @@ export default function RecurringPayments() {
     const handleSaveEdit = (recurringPayment: RecurringPayment) => {
         recurringPaymentStore.updateRecurringPayment(recurringPayment.id, {
             ...recurringPayment,
+            nextPaymentDate: calculateNextPaymentDate(recurringPayment),
             updatedAt: new Date()
         });
         setRows(recurringPaymentStore.getRecurringPayments());
@@ -212,9 +263,9 @@ export default function RecurringPayments() {
     return (
         <>
             <Title text='Recurring Payments' />
-            <DataTable 
-                entityName='Recurring Payment' 
-                columns={columns} 
+            <DataTable
+                entityName='Recurring Payment'
+                columns={columns}
                 rows={rows}
                 enableAddDialog={true}
                 enableEditDialog={true}

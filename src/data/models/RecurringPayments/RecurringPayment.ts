@@ -16,6 +16,7 @@ export default interface RecurringPayment {
     categoryId?: number;
     active: boolean;
     lastGeneratedAt?: Date;
+    nextPaymentDate?: Date | null;
     createdAt: Date;
     updatedAt?: Date;
 }
