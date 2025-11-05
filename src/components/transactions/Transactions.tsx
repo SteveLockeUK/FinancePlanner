@@ -6,14 +6,18 @@ import { type TransactionType, TRANSACTION_TYPES } from '@/data/models/Transacti
 import { transactionStore } from '@/data/stores/TransactionStore';
 import { accountStore } from '@/data/stores/AccountStore';
 import type Account from '@/data/models/Accounts/Account';
+import type RecurringPayment from '@/data/models/RecurringPayments/RecurringPayment';
+import { recurringPaymentStore } from '@/data/stores/RecurringPaymentStore';
 
 export default function Transactions() {
     const [rows, setRows] = useState<Transaction[]>(transactionStore.getTransactions());
     const [accounts, setAccounts] = useState<Account[]>(accountStore.getAccounts());
+    const [recurringPayments, setRecurringPayments] = useState<RecurringPayment[]>(recurringPaymentStore.getRecurringPayments());
     
     useEffect(() => {
         setRows(transactionStore.getTransactions());
         setAccounts(accountStore.getAccounts());
+        setRecurringPayments(recurringPaymentStore.getRecurringPayments());
     }, []);
 
     const columns: ColumnDef<Transaction>[] = [
@@ -42,6 +46,19 @@ export default function Transactions() {
                 options: TRANSACTION_TYPES.map(type => ({label: type, value: type}))
             },
             render: (value: TransactionType) => value,
+        },
+        {
+            key: 'recurrenceId',
+            label: 'Recurrence',
+            sortable: true,
+            filterable: true,
+            editable: true,
+            fieldConfig: {
+                type: 'select',
+                required: false,
+                options: recurringPayments.map(recurrence => ({label: recurrence.name, value: recurrence.id}))
+            },
+            render: (value: number) => recurringPayments.find(x => x.id == value)?.name || '',
         },
         {
             key: 'amount',
