@@ -7,6 +7,7 @@ import type Account from '@/data/models/Accounts/Account';
 import type RecurringPayment from '@/data/models/RecurringPayments/RecurringPayment';
 import type Transaction from '@/data/models/Transactions/Transaction';
 import { transactionStore } from '@/data/stores/TransactionStore';
+import RecurringPaymentTransactionDialog from '@/components/recurring-payments/RecurringPaymentTransactionDialog';
 /**
  * Calculate all payment dates for a recurring payment before a given date
  */
@@ -41,7 +42,7 @@ function calculatePaymentDates(
     return dates;
   }
 
-  let currentDate = new Date(startDate);
+  let currentDate = payment.nextPaymentDate ? new Date(payment.nextPaymentDate) : startDate;
 
   while (currentDate < beforeDate) {
     // Check if payment has ended
@@ -135,6 +136,20 @@ export default function Dashboard() {
   // Convert date string to Date object for calculations
   const projectionDateObj = new Date(projectionDate);
 
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const [isGenerateRecurringTransactionsDialogOpen, setIsGenerateRecurringTransactionsDialogOpen] = useState(false);
+
+  const generateRecurringTransactions = (account: Account) => {
+    setSelectedAccount(account);
+    setIsGenerateRecurringTransactionsDialogOpen(true);
+  }
+
+  const handleGenerateRecurringTransactions = () => {
+    setIsGenerateRecurringTransactionsDialogOpen(false);
+    setTransactions(transactionStore.getTransactions());
+    setRecurringPayments(recurringPaymentStore.getRecurringPayments());
+  }
+
   return (
     <div>
       <Title text='Dashboard' />
@@ -200,7 +215,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <Card.Footer>
-                <button className='btn-neutral-small'>
+                <button className='btn-small' onClick={() => generateRecurringTransactions(account)}>
                   Generate Recurring Transactions
                 </button>
               </Card.Footer>              
@@ -208,6 +223,9 @@ export default function Dashboard() {
           )
         })}
       </div>
+      {
+        selectedAccount && <RecurringPaymentTransactionDialog isOpen={isGenerateRecurringTransactionsDialogOpen} onClose={handleGenerateRecurringTransactions} account={selectedAccount} />
+      }
     </div>
   )
 }

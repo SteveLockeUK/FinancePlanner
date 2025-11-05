@@ -7,6 +7,7 @@ import { type RecurringPaymentType, RECURRING_PAYMENT_TYPES } from '@/data/model
 import { recurringPaymentStore } from '@/data/stores/RecurringPaymentStore';
 import { accountStore } from '@/data/stores/AccountStore';
 import type Account from '@/data/models/Accounts/Account';
+import calculateNextPaymentDate from '@/data/models/RecurringPayments/RecurringPaymentHelpers';
 
 export default function RecurringPayments() {
     const [rows, setRows] = useState<RecurringPayment[]>(recurringPaymentStore.getRecurringPayments());
@@ -185,44 +186,7 @@ export default function RecurringPayments() {
             },
             render: (value: number) => accounts.find(x => x.id == value)?.name || '',
         }
-    ];
-
-    const calculateNextPaymentDate = (recurringPayment: RecurringPayment): Date | null => {
-        var startDate = 
-            recurringPayment.lastGeneratedAt ||
-            recurringPayment.startDate;
-
-        // We might be going from the last generated date. This might not be the usual day the payment takes place (e.g. if the date fell on a weekend).
-        // So we need to reset to the scheduled date.
-        startDate.setDate(startDate.getDate());
-            
-        const nextPaymentDate = new Date(startDate);
-        switch (recurringPayment.frequency) {
-            case 'Weekly':
-                nextPaymentDate.setDate(nextPaymentDate.getDate() + 7);
-                break;
-            case 'Monthly':
-                nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
-                break;
-            case 'Yearly':
-                nextPaymentDate.setFullYear(nextPaymentDate.getFullYear() + 1);
-                break;
-            default:
-                break;
-        }
-
-        // If the recurring payment hasn't started yet, return null.
-        if(nextPaymentDate < startDate) {
-            return null;
-        }
-
-        // If the recurring payment has ended, return null.
-        if(recurringPayment.endDate && nextPaymentDate > new Date(recurringPayment.endDate)) {
-            return null;
-        }
-
-        return nextPaymentDate;
-    }
+    ];    
 
     const handleSaveAdd = (recurringPaymentData: Partial<RecurringPayment>) => {
         const nextPaymentDate = calculateNextPaymentDate(recurringPaymentData as RecurringPayment);

@@ -196,7 +196,7 @@ export default function Transactions() {
                 onSaveEdit={handleSaveEdit}
                 onConfirmDelete={handleDelete}
                 defaultSortColumn={'date'}
-                defaultSortDirection='desc'
+                defaultSortDirection='asc'
             />
         </>
     )
