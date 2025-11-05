@@ -560,13 +560,13 @@ export default function DataTable<T extends Record<string, any>>({
                     key={column.key}
                     onClick={() => handleSort(column.key)}
                     className={`
-                      px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider
+                      px-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider
                       ${index < columns.length - 1 || showActionsColumn ? 'border-r border-gray-300' : ''}
                       ${column.sortable !== false ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''}
                     `}
                   >
                     <div className="flex items-center gap-2">
-                      <span>{column.label}</span>
+                      <span><strong>{column.label}</strong></span>
                       {column.sortable !== false && getSortIcon(column.key)}
                     </div>
                   </th>
@@ -581,7 +581,7 @@ export default function DataTable<T extends Record<string, any>>({
             <tbody className="bg-white divide-y divide-gray-200">
               {paginatedRows.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length + (showActionsColumn ? 1 : 0)} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={columns.length + (showActionsColumn ? 1 : 0)} className="px-3 py-12 text-center text-gray-500">
                     <div className="flex flex-col items-center gap-2">
                       <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -597,13 +597,13 @@ export default function DataTable<T extends Record<string, any>>({
                   const rowHasEditable = columns.some((col) => col.editable === true)
 
                   return (
-                    <tr key={actualRowIndex} className="hover:bg-gray-50 transition-colors">
+                    <tr key={actualRowIndex} className={`hover:bg-gray-200 transition-colors ${actualRowIndex % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
                       {columns.map((column, colIndex) => {
                         const value = row[column.key]
                         return (
                           <td
                             key={column.key}
-                            className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${colIndex < columns.length - 1 || showActionsColumn ? 'border-r border-gray-200' : ''
+                            className={`px-3 py-2 whitespace-nowrap text-sm text-gray-900 ${colIndex < columns.length - 1 || showActionsColumn ? 'border-r border-gray-200' : ''
                               }`}
                           >
                             {column.render ? column.render(value, row) : value}
@@ -611,7 +611,7 @@ export default function DataTable<T extends Record<string, any>>({
                         )
                       })}
                       {showActionsColumn && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
                           <div className="flex items-center gap-2">
                             {(rowHasEditable && (onEdit || enableEditDialog)) && (
                               <button
