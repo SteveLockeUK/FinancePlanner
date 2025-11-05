@@ -4,6 +4,7 @@ import { authService, type LoginCredentials } from '@/services/authService';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -13,7 +14,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const credentials: LoginCredentials = { email, password };
+      const credentials: LoginCredentials = { email, password, rememberMe };
       await authService.login(credentials);
       window.location.href='/'
     } catch (err) {
@@ -66,6 +67,20 @@ export default function Login() {
               autoComplete="current-password"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 hover:border-gray-400"
             />
+          </div>
+
+          <div className="flex items-center">
+            <input
+              id="rememberMe"
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              disabled={loading}
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            />
+            <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700 cursor-pointer">
+              Remember Me
+            </label>
           </div>
 
           {error && (

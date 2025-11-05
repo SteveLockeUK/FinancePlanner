@@ -1,8 +1,5 @@
 import Cookies from 'js-cookie';
 
-const AUTH_COOKIE_NAME = 'auth_token';
-const AUTH_COOKIE_EXPIRY_DAYS = 7;
-
 export interface User {
   id: string;
   email: string;
@@ -12,6 +9,7 @@ export interface User {
 export interface LoginCredentials {
   email: string;
   password: string;
+  rememberMe: boolean;
 }
 
 export interface RegisterCredentials {
@@ -28,8 +26,9 @@ class AuthService {
   /**
    * Check if user is authenticated by checking for auth cookie
    */
+
   isAuthenticated(): boolean {
-    return !!Cookies.get(AUTH_COOKIE_NAME);
+    return this.getCurrentUser() !== null;
   }
 
   /**
@@ -38,24 +37,31 @@ class AuthService {
    */
   async login(credentials: LoginCredentials): Promise<User> {
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // Mock successful login for any credentials
-    // In production, you would validate credentials here
-    const user: User = {
-      id: '1',
-      email: credentials.email,
-      name: credentials.email.split('@')[0],
-    };
-
-    // Set auth cookie
-    Cookies.set(AUTH_COOKIE_NAME, 'mock-auth-token', {
-      expires: AUTH_COOKIE_EXPIRY_DAYS,
-      secure: window.location.protocol === 'https:',
-      sameSite: 'strict',
+    const response = await fetch('https://localhost:7084/api/auth/login', {
+      method: 'POST',
+      credentials: 'include', // Important for cookies
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
     });
 
+    if (!response.ok) {
+      throw new Error('Failed to login');
+    }
+
+
+    var user = await response.json() as User;
+    localStorage.setItem('FinancePlanner.User', JSON.stringify(user));
     return user;
+  }
+
+  getCurrentUser(): User | null {
+    var user = localStorage.getItem('FinancePlanner.User');
+    if (user) {
+      return JSON.parse(user) as User;
+    }
+    return null;
   }
 
   async register(credentials: RegisterCredentials): Promise<any> {
@@ -69,34 +75,22 @@ class AuthService {
 
     if (!response.ok) {
       throw new Error('Failed to register');
-    }    
-  }
-
-  /**
-   * Logout user by removing auth cookie
-   */
-  logout(): void {
-    Cookies.remove(AUTH_COOKIE_NAME);
-  }
-
-  /**
-   * Get current user from cookie
-   * In production, you might decode a JWT token from the cookie
-   */
-  getCurrentUser(): User | null {
-    if (!this.isAuthenticated()) {
-      return null;
     }
-
-    // In a real app, you'd decode the token from the cookie
-    // For now, we'll return a mock user
-    return {
-      id: '1',
-      email: 'user@example.com',
-      name: 'User',
-    };
+  }
+  
+  async logout(): Promise<any> {    
+    const response = await fetch('https://localhost:7084/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to logout');
+    }
+    localStorage.removeItem('FinancePlanner.User');
   }
 }
 
 export const authService = new AuthService();
-
