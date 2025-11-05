@@ -6,11 +6,13 @@ import ProtectedRoute from '@/routing/ProtectedRoute'
 import { Routes, Route } from 'react-router-dom'
 import RecurringPayments from './components/recurring-payments/RecurringPayments'
 import Transactions from './components/transactions/Transactions'
+import Register from './components/auth/Register'
 
 export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>

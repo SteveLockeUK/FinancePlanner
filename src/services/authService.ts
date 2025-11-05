@@ -14,6 +14,12 @@ export interface LoginCredentials {
   password: string;
 }
 
+export interface RegisterCredentials {
+  email: string;
+  password: string;
+  name: string;
+}
+
 /**
  * Mock authentication service
  * In a real app, this would make API calls to your backend
@@ -50,6 +56,20 @@ class AuthService {
     });
 
     return user;
+  }
+
+  async register(credentials: RegisterCredentials): Promise<any> {
+    const response = await fetch('https://localhost:7084/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to register');
+    }    
   }
 
   /**

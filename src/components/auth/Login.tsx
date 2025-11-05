@@ -98,7 +98,7 @@ export default function Login() {
 
         <div className="mt-8 pt-6 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center leading-relaxed">
-            This is a mock authentication. Any email and password will work for demonstration purposes.
+            <a href="/register" className="text-primary-700 hover:text-primary-600">Register</a>
           </p>
         </div>
       </div>
