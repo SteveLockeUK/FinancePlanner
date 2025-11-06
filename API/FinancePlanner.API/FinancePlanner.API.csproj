@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FinancePlanner.Data\FinancePlanner.Data.csproj" />
     <ProjectReference Include="..\FinancePlanner.Domain\FinancePlanner.Domain.csproj" />
+    <ProjectReference Include="..\FinancePlanner.ServiceDefaults\FinancePlanner.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

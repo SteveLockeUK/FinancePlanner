@@ -1,5 +1,3 @@
-import Cookies from 'js-cookie';
-
 export interface User {
   id: string;
   email: string;
@@ -37,7 +35,7 @@ class AuthService {
    */
   async login(credentials: LoginCredentials): Promise<User> {
     // Simulate API delay
-    const response = await fetch('https://localhost:7084/api/auth/login', {
+    const response = await fetch('api/auth/login', {
       method: 'POST',
       credentials: 'include', // Important for cookies
       headers: {
@@ -51,13 +49,13 @@ class AuthService {
     }
 
 
-    var user = await response.json() as User;
+    const user = await response.json() as User;
     localStorage.setItem('FinancePlanner.User', JSON.stringify(user));
     return user;
   }
 
   getCurrentUser(): User | null {
-    var user = localStorage.getItem('FinancePlanner.User');
+    const user = localStorage.getItem('FinancePlanner.User');
     if (user) {
       return JSON.parse(user) as User;
     }
@@ -65,7 +63,7 @@ class AuthService {
   }
 
   async register(credentials: RegisterCredentials): Promise<any> {
-    const response = await fetch('https://localhost:7084/api/auth/register', {
+    const response = await fetch('api/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -79,7 +77,7 @@ class AuthService {
   }
   
   async logout(): Promise<any> {    
-    const response = await fetch('https://localhost:7084/api/auth/logout', {
+    const response = await fetch('api/auth/logout', {
       method: 'POST',
       credentials: 'include',
       headers: {
