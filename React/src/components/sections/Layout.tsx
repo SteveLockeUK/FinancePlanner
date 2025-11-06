@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Header from './Header'
 import Navigation from './Navigation'
-import { authService } from '@/services/authService'
+import { authService } from '@/data/services/authService'
 
 export default function Layout() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)

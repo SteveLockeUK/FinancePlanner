@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using System.Reflection;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using FinancePlanner.Domain.Models;
 
@@ -11,13 +12,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
-    // Add your DbSets here
-    // public DbSet<YourEntity> YourEntities { get; set; }
-
+    public DbSet<Account> Accounts { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-
-        // Configure your entities here
+        
+        var thisAssembly = Assembly.GetAssembly(GetType())!;
+        builder.ApplyConfigurationsFromAssembly(thisAssembly);
     }
 }

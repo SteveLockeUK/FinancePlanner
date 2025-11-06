@@ -8,6 +8,7 @@ import type RecurringPayment from '@/data/models/RecurringPayments/RecurringPaym
 import type Transaction from '@/data/models/Transactions/Transaction';
 import { transactionStore } from '@/data/stores/TransactionStore';
 import RecurringPaymentTransactionDialog from '@/components/recurring-payments/RecurringPaymentTransactionDialog';
+import { accountService } from '@/data/services/AccountService';
 /**
  * Calculate all payment dates for a recurring payment before a given date
  */
@@ -126,9 +127,14 @@ export default function Dashboard() {
     setProjectionDate(date);
   }
 
+  const fetchAccounts = async () => {
+    const accounts = await accountService.getAccounts();
+    setAccounts(accounts);
+  }
+
   useEffect(() => {
     onProjectionDatePickerValueChanged(projectionDatePickerValue);
-    setAccounts(accountStore.getAccounts());
+    fetchAccounts();
     setRecurringPayments(recurringPaymentStore.getRecurringPayments());
     setTransactions(transactionStore.getTransactions());
   }, []);

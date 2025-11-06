@@ -3,16 +3,29 @@ import Title from '@/components/ui/Title';
 import DataTable, { type ColumnDef } from '@/components/ui/DataTable';
 import type Account from '@/data/models/Accounts/Account';
 import type { AccountType } from '@/data/models/Accounts/AccountType';
-import { accountStore } from '@/data/stores/AccountStore';
+import { accountService } from '@/data/services/AccountService';
 import { ACCOUNT_TYPES } from '@/data/models/Accounts/AccountType';
 import { CURRENCIES, type Currency } from '@/data/models/Currencies';
 
 export default function Accounts() {
-    const [rows, setRows] = useState<Account[]>(accountStore.getAccounts());
-
-    // Load accounts from store on mount
+    const [rows, setRows] = useState<Account[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    
+    // Load accounts from API on mount
     useEffect(() => {
-        setRows(accountStore.getAccounts());
+        const fetchAccounts = async () => {
+            try {
+                setLoading(true);
+                const accounts = await accountService.getAccounts();
+                setRows(accounts);
+            } catch (error) {
+                console.error('Failed to fetch accounts:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchAccounts();
     }, []);
 
     const columns: ColumnDef<Account>[] = [
@@ -96,30 +109,59 @@ export default function Accounts() {
         }
     ];
 
-    const handleSaveAdd = (accountData: Partial<Account>) => {
-        const newAccount: Omit<Account, 'id'> = {
-            name: accountData.name || '',
-            type: (accountData.type as AccountType) || 'Current',
-            currency: (accountData.currency as Currency) || 'GBP',
-            startingBalance: accountData.startingBalance || 0,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-        accountStore.addAccount(newAccount);
-        setRows(accountStore.getAccounts());
+    const handleSaveAdd = async (accountData: Partial<Account>) => {
+        try {
+            const newAccount: Partial<Account> = {
+                id: 0, // Will be set by the API
+                name: accountData.name || '',
+                type: (accountData.type as AccountType) || 'Current',
+                currency: (accountData.currency as Currency) || 'GBP',
+                startingBalance: accountData.startingBalance || 0
+            };
+            await accountService.createAccount(newAccount);
+            // Refetch accounts to get the updated list
+            const accounts = await accountService.getAccounts();
+            setRows(accounts);
+        } catch (error) {
+            console.error('Failed to create account:', error);
+            throw error;
+        }
     }
 
-    const handleSaveEdit = (account: Account) => {
-        accountStore.updateAccount(account.id, {
-            ...account,
-            updatedAt: new Date()
-        });
-        setRows(accountStore.getAccounts());
+    const handleSaveEdit = async (account: Account) => {
+        try {
+            await accountService.updateAccount(account.id, {
+                ...account,
+                updatedAt: new Date()
+            });
+            // Refetch accounts to get the updated list
+            const accounts = await accountService.getAccounts();
+            setRows(accounts);
+        } catch (error) {
+            console.error('Failed to update account:', error);
+            throw error;
+        }
     }
 
-    const handleDelete = (account: Account) => {
-        accountStore.deleteAccount(account.id);
-        setRows(accountStore.getAccounts());
+    const handleDelete = async (account: Account) => {
+        try {
+            await accountService.deleteAccount(account.id);
+            // Refetch accounts to get the updated list
+            const accounts = await accountService.getAccounts();
+            setRows(accounts);
+        } catch (error) {
+            console.error('Failed to delete account:', error);
+            throw error;
+        }
+    }
+
+    if (loading) {
+        return (
+            <>
+                <Title text='Accounts' />
+                <div>Loading accounts...</div>
+            </>
+        );
     }
 
     return (

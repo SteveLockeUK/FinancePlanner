@@ -1,4 +1,4 @@
-import { authService } from '@/services/authService'
+import { authService } from '@/data/services/authService'
 
 interface HeaderProps {
     onLogout: () => void
