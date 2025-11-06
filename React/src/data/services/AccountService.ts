@@ -33,7 +33,7 @@ class AccountService {
             throw new Error('Failed to create account');
         }
         
-        return await response.json();
+        return (await response.json()).value;
     }
     
     async updateAccount(id: number, account: Account): Promise<Account> {

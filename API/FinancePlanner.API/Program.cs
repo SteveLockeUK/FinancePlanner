@@ -103,9 +103,6 @@ app.UseAuthorization();
 // Map endpoints
 app.MapAuthEndpoints();
 app.MapAccountEndpoints();
-
-// Example protected endpoint
-app.MapGet("/api/protected", () => "This is protected data")
-    .RequireAuthorization();
+app.MapRecurringPaymentEndpoints();
 
 app.Run();

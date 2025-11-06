@@ -38,6 +38,11 @@ class RecurringPaymentStore {
             console.error('Error saving recurring payments to LocalStorage:', error);
         }
     }
+    
+    setRecurringPayments(recurringPayments: RecurringPayment[]): void {
+        this.recurringPayments = recurringPayments;
+        this.saveRecurringPayments();
+    }
 
     getRecurringPayments(): RecurringPayment[] {
         return [...this.recurringPayments];

@@ -1,4 +1,5 @@
 ﻿using FinancePlanner.Domain.Entities;
+using FinancePlanner.Domain.Entities.Accounts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

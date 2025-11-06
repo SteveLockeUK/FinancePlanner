@@ -4,17 +4,35 @@ import DataTable, { type ColumnDef } from '@/components/ui/DataTable';
 import type RecurringPayment from '@/data/models/RecurringPayments/RecurringPayment';
 import { type RecurringPaymentFrequency, RECURRING_PAYMENT_FREQUENCIES } from '@/data/models/RecurringPayments/RecurringPaymentFrequencies';
 import { type RecurringPaymentType, RECURRING_PAYMENT_TYPES } from '@/data/models/RecurringPayments/RecurringPaymentTypes';
-import { recurringPaymentStore } from '@/data/stores/RecurringPaymentStore';
-import { accountStore } from '@/data/stores/AccountStore';
+import { recurringPaymentService} from "@/data/services/RecurringPaymentService.ts";
+import { accountService} from "@/data/services/AccountService.ts";
 import type Account from '@/data/models/Accounts/Account';
 import calculateNextPaymentDate from '@/data/models/RecurringPayments/RecurringPaymentHelpers';
 
 export default function RecurringPayments() {
-    const [rows, setRows] = useState<RecurringPayment[]>(recurringPaymentStore.getRecurringPayments());
-    const [accounts, setAccounts] = useState<Account[]>(accountStore.getAccounts());
+    const [rows, setRows] = useState<RecurringPayment[]>([]);
+    const [accounts, setAccounts] = useState<Account[]>([]);
+    
+    const fetchAccounts = async () => {
+        try {
+            const accounts = await accountService.getAccounts();
+            setAccounts(accounts);
+        } catch (error) {
+            console.error('Failed to fetch accounts:', error);
+        }
+    }
+    
+    const fetchRecurringPayments = async () => {
+        try {
+            const recurringPayments = await recurringPaymentService.getRecurringPayments();
+            setRows(recurringPayments);
+        } catch (error) {
+            console.error('Failed to fetch recurring payments:', error);
+        }
+    }
+    
     useEffect(() => {
-        setRows(recurringPaymentStore.getRecurringPayments());
-        setAccounts(accountStore.getAccounts());
+        fetchAccounts().then(() => fetchRecurringPayments());        
     }, []);
 
     const columns: ColumnDef<RecurringPayment>[] = [
@@ -100,19 +118,20 @@ export default function RecurringPayments() {
             filterable: true,
             editable: true,
             fieldConfig: {
+                required: false,
                 type: 'date',
             },
             render: (value: Date) => value ? new Date(value).toLocaleDateString('en-GB') : '',
         },
         {
-            key: 'active',
+            key: 'isActive',
             label: 'Active',
             sortable: true,
             filterable: true,
             editable: true,
             fieldConfig: {
                 type: 'checkbox',
-                required: true,
+                required: false,
             },
             render: (value: boolean) => value ? 'Yes' : 'No',
         },
@@ -188,7 +207,7 @@ export default function RecurringPayments() {
         }
     ];    
 
-    const handleSaveAdd = (recurringPaymentData: Partial<RecurringPayment>) => {
+    const handleSaveAdd = async (recurringPaymentData: Partial<RecurringPayment>) => {
         const nextPaymentDate = calculateNextPaymentDate(recurringPaymentData as RecurringPayment);
         const newRecurringPayment: Omit<RecurringPayment, 'id'> = {
             userId: '',
@@ -202,26 +221,41 @@ export default function RecurringPayments() {
             fromAccountId: Number(recurringPaymentData.fromAccountId) || undefined,
             toAccountId: Number(recurringPaymentData.toAccountId) || undefined,
             nextPaymentDate: nextPaymentDate,
-            active: recurringPaymentData.active || true,
+            isActive: recurringPaymentData.isActive || true,
             createdAt: new Date(),
             updatedAt: new Date(),
         }
-        recurringPaymentStore.addRecurringPayment(newRecurringPayment);
-        setRows(recurringPaymentStore.getRecurringPayments());
+        
+        try {
+            await recurringPaymentService.createRecurringPayment(newRecurringPayment)
+        }
+        catch(error) {
+            console.error('Failed to create recurring payment:', error);
+        }        
+        await fetchRecurringPayments();       
     }
 
-    const handleSaveEdit = (recurringPayment: RecurringPayment) => {
-        recurringPaymentStore.updateRecurringPayment(recurringPayment.id, {
-            ...recurringPayment,
-            nextPaymentDate: calculateNextPaymentDate(recurringPayment),
-            updatedAt: new Date()
-        });
-        setRows(recurringPaymentStore.getRecurringPayments());
+    const handleSaveEdit = async (recurringPayment: RecurringPayment) => {
+        try {
+            recurringPayment.endDate = recurringPayment.endDate || null;
+            await recurringPaymentService.updateRecurringPayment(recurringPayment.id, {
+                ...recurringPayment,
+                nextPaymentDate: calculateNextPaymentDate(recurringPayment),
+                updatedAt: new Date()
+            });
+            await fetchRecurringPayments();
+        } catch (error) {
+            console.error('Failed to update recurring payment:', error);
+        }
     }
 
-    const handleDelete = (recurringPayment: RecurringPayment) => {
-        recurringPaymentStore.deleteRecurringPayment(recurringPayment.id);
-        setRows(recurringPaymentStore.getRecurringPayments());
+    const handleDelete = async (recurringPayment: RecurringPayment) => {
+        try {
+            await recurringPaymentService.deleteRecurringPayment(recurringPayment.id);
+            await fetchRecurringPayments();
+        } catch (error) {
+            console.error('Failed to delete recurring payment:', error);
+        }
     }
 
     return (

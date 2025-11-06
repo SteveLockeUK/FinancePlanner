@@ -1,4 +1,5 @@
 ﻿using FinancePlanner.Domain.Entities;
+using FinancePlanner.Domain.Entities.Accounts;
 
 namespace FinancePlanner.Data.Models.Accounts;
 

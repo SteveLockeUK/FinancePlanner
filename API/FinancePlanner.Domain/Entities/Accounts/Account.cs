@@ -1,4 +1,6 @@
-﻿namespace FinancePlanner.Domain.Entities;
+﻿using FinancePlanner.Domain.Entities.RecurringPayments;
+
+namespace FinancePlanner.Domain.Entities.Accounts;
 
 public class Account
 {
@@ -12,4 +14,6 @@ public class Account
     public DateTimeOffset? ArchivedAt { get; set; }
     public string UserId { get; set; }
     public ApplicationUser User { get; set; }
+    public IEnumerable<RecurringPayment> ToRecurringPayments { get; set; } = new List<RecurringPayment>();
+    public IEnumerable<RecurringPayment> FromRecurringPayments { get; set; } = new List<RecurringPayment>();
 }

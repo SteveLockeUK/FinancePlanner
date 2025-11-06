@@ -2,11 +2,12 @@
 using FinancePlanner.Data;
 using FinancePlanner.Data.Models.Accounts;
 using FinancePlanner.Domain.Entities;
+using FinancePlanner.Domain.Entities.Accounts;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Currency = FinancePlanner.Domain.Entities.Currency;
-using AccountType = FinancePlanner.Domain.Entities.AccountType;
+using Currency = FinancePlanner.Domain.Entities.Accounts.Currency;
+using AccountType = FinancePlanner.Domain.Entities.Accounts.AccountType;
 
 namespace FinancePlanner.API.Endpoints;
 
@@ -59,7 +60,7 @@ public static class AccountEndpoints
         return Results.Ok(new AccountModel(account));
     }
 
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AccountModel))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Created<AccountModel>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(BadRequest))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     private static async Task<IResult> Create([FromBody] CreateAccountRequest request,
@@ -89,10 +90,10 @@ public static class AccountEndpoints
         await db.Accounts.AddAsync(account, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
 
-        return Results.Ok(new AccountModel(account));
+        return Results.Created(new Uri($"accounts/{account.Id}"), new AccountModel(account));
     }
 
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Created<AccountModel>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AccountModel))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(BadRequest))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -119,7 +120,7 @@ public static class AccountEndpoints
         account.UpdatedAt = DateTimeOffset.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);
-        return Results.Created(new Uri($"accounts/{account.Id}"), new AccountModel(account));
+        return Results.Ok(new AccountModel(account));
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]

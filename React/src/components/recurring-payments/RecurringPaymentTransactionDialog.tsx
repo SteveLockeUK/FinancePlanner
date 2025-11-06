@@ -27,7 +27,7 @@ export default function RecurringPaymentTransactionDialog({ isOpen, onClose, acc
             
             let paymentsForAccount = recurringPaymentStore.getRecurringPayments();
             paymentsForAccount = paymentsForAccount
-                .filter(x => x.active && x.nextPaymentDate && (x.fromAccountId == account.id || x.toAccountId == account.id));                
+                .filter(x => x.isActive && x.nextPaymentDate && (x.fromAccountId == account.id || x.toAccountId == account.id));                
 
             paymentsForAccount = paymentsForAccount
                 .filter(x => !x.lastGeneratedAt || (x.nextPaymentDate && new Date(x.nextPaymentDate) <= upperBound));
