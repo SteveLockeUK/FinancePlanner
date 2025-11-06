@@ -1,5 +1,5 @@
 ﻿// ReSharper disable InconsistentNaming
-namespace FinancePlanner.Domain.Models;
+namespace FinancePlanner.Domain.Entities;
 
 public enum Currency
 {

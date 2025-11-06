@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
+using FinancePlanner.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using FinancePlanner.Domain.Models;
 
 namespace FinancePlanner.Data;
 

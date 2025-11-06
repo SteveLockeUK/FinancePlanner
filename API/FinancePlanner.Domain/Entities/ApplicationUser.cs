@@ -1,7 +1,6 @@
-﻿using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
-namespace FinancePlanner.Domain.Models;
+namespace FinancePlanner.Domain.Entities;
 
 public class ApplicationUser : IdentityUser
 {

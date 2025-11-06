@@ -2,8 +2,8 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using FinancePlanner.Data;
-using FinancePlanner.Domain.Models;
 using FinancePlanner.API.Endpoints;
+using FinancePlanner.Domain.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 

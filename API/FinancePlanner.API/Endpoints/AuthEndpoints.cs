@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using FinancePlanner.Domain.Models;
 using System.Security.Claims;
 using FinancePlanner.Data.Models;
+using FinancePlanner.Domain.Entities;
 
 namespace FinancePlanner.API.Endpoints;
 

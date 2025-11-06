@@ -1,4 +1,4 @@
-﻿namespace FinancePlanner.Domain.Models;
+﻿namespace FinancePlanner.Domain.Entities;
 
 public enum AccountType
 {
