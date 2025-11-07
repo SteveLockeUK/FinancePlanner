@@ -37,6 +37,11 @@ class TransactionStore {
             console.error('Error saving transactions to LocalStorage:', error);
         }
     }
+    
+    setTransactions(transactions: Transaction[]): void {
+        this.transactions = transactions;
+        this.saveTransactions();
+    }
 
     getTransactions(): Transaction[] {
         return [...this.transactions];

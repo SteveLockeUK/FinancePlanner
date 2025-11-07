@@ -3,7 +3,7 @@ import type Account from "@/data/models/Accounts/Account";
 import type Transaction from '@/data/models/Transactions/Transaction';
 import type RecurringPayment from '@/data/models/RecurringPayments/RecurringPayment';
 import { recurringPaymentStore } from '@/data/stores/RecurringPaymentStore';
-import { transactionStore } from '@/data/stores/TransactionStore';
+import { transactionService } from '@/data/services/TransactionService';
 import calculateNextPaymentDate from '@/data/models/RecurringPayments/RecurringPaymentHelpers';
 import Dialog from '@/components/ui/Dialog';
 
@@ -60,7 +60,7 @@ export default function RecurringPaymentTransactionDialog({ isOpen, onClose, acc
         }
     }
 
-    const generateTransaction = () => {
+    const generateTransaction = async () => {
         if (!selectedRecurringPayment) {
             return;
         }
@@ -71,30 +71,33 @@ export default function RecurringPaymentTransactionDialog({ isOpen, onClose, acc
             return;
         }
 
-        const transaction = {
-            userId: '',
-            description: selectedRecurringPayment.name,
-            type: selectedRecurringPayment.type,
-            amount: selectedRecurringPayment.amount,
-            date: date,
-            fromAccountId: selectedRecurringPayment.fromAccountId,
-            toAccountId: selectedRecurringPayment.toAccountId,
-            categoryId: selectedRecurringPayment.categoryId,
-            recurrenceId: selectedRecurringPayment.id,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        } as Omit<Transaction, 'id'>;
-        transactionStore.addTransaction(transaction);
+        try {
+            const transaction = {
+                userId: '',
+                description: selectedRecurringPayment.name,
+                type: selectedRecurringPayment.type,
+                amount: selectedRecurringPayment.amount,
+                date: date,
+                fromAccountId: selectedRecurringPayment.fromAccountId,
+                toAccountId: selectedRecurringPayment.toAccountId,
+                categoryId: selectedRecurringPayment.categoryId,
+                recurrenceId: selectedRecurringPayment.id,
+            } as Partial<Transaction>;
+            
+            await transactionService.createTransaction(transaction);
 
-        recurringPaymentStore.updateRecurringPayment(selectedRecurringPayment.id, {
-            lastGeneratedAt: new Date(),
-            nextPaymentDate: calculateNextPaymentDate(selectedRecurringPayment)
-        } as Partial<RecurringPayment>);
-        
-        setSelectedRecurringPayment(null);
-        setShowDateEditor(false);
-        setTransactionDate('');
-        onClose();
+            recurringPaymentStore.updateRecurringPayment(selectedRecurringPayment.id, {
+                lastGeneratedAt: new Date(),
+                nextPaymentDate: calculateNextPaymentDate(selectedRecurringPayment)
+            } as Partial<RecurringPayment>);
+            
+            setSelectedRecurringPayment(null);
+            setShowDateEditor(false);
+            setTransactionDate('');
+            onClose();
+        } catch (error) {
+            console.error('Failed to create transaction:', error);
+        }
     }
 
     const formatDate = (date: Date | undefined | null): string => {

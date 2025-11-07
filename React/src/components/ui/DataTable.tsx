@@ -13,6 +13,7 @@ export interface FieldConfig {
     step?: number
     readonly?: boolean
     hidden?: boolean
+    defaultValue?: any | undefined
 }
 
 export interface ColumnDef<T> {
@@ -211,10 +212,10 @@ export default function DataTable<T extends Record<string, any>>({
                 const fieldConfig = col.fieldConfig
                 if (fieldConfig?.type === 'number') {
                     initialData[col.key] = 0
-                } else if (fieldConfig?.type === 'date') {
-                    initialData[col.key] = new Date()
-                } else {
-                    initialData[col.key] = ''
+                } else if (fieldConfig?.type === 'date') {                    
+                    initialData[col.key] = fieldConfig.defaultValue ?? new Date()
+                } else{
+                    initialData[col.key] = fieldConfig?.defaultValue ?? ''
                 }
             })
             setFormData(initialData as Partial<T>)
@@ -356,7 +357,7 @@ export default function DataTable<T extends Record<string, any>>({
                         <input
                             type="number"
                             id={column.key}
-                            value={value ?? ''}
+                            value={value ?? fieldConfig.defaultValue ?? ''}
                             onChange={(e) => handleChange(e.target.value ? parseFloat(e.target.value) : '')}
                             disabled={isReadonly}
                             min={fieldConfig.min}
@@ -377,7 +378,7 @@ export default function DataTable<T extends Record<string, any>>({
                         </label>
                         <select
                             id={column.key}
-                            value={value ?? ''}
+                            value={value ?? fieldConfig.defaultValue ?? ''}
                             onChange={(e) => handleChange(e.target.value)}
                             disabled={isReadonly}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors disabled:bg-gray-100"
@@ -409,6 +410,8 @@ export default function DataTable<T extends Record<string, any>>({
                             dateValue = ''
                         }
                     }
+                } else {
+                    dateValue = fieldConfig.defaultValue ?? ''
                 }
                 return (
                     <div key={column.key}>
@@ -436,7 +439,7 @@ export default function DataTable<T extends Record<string, any>>({
                         </label>
                         <textarea
                             id={column.key}
-                            value={value ?? ''}
+                            value={value ?? fieldConfig.defaultValue ?? ''}
                             onChange={(e) => handleChange(e.target.value)}
                             disabled={isReadonly}
                             placeholder={fieldConfig.placeholder}
@@ -455,7 +458,7 @@ export default function DataTable<T extends Record<string, any>>({
                         <input
                             type="checkbox"
                             id={column.key}
-                            checked={value ?? false}
+                            checked={value ?? fieldConfig.defaultValue ?? false}
                             onChange={(e) => handleChange(e.target.checked)}
                             disabled={isReadonly}
                         />
@@ -472,7 +475,7 @@ export default function DataTable<T extends Record<string, any>>({
                         <input
                             type="text"
                             id={column.key}
-                            value={value ?? ''}
+                            value={value ?? fieldConfig.defaultValue ?? ''}
                             onChange={(e) => handleChange(e.target.value)}
                             disabled={isReadonly}
                             placeholder={fieldConfig.placeholder}

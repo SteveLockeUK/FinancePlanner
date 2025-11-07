@@ -1,44 +1,41 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using FinancePlanner.Data;
-using FinancePlanner.Data.Models.Accounts;
-using FinancePlanner.Domain.Entities;
-using FinancePlanner.Domain.Entities.Accounts;
+using FinancePlanner.Data.Models.Transactions;
+using FinancePlanner.Domain.Entities.Transactions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Currency = FinancePlanner.Domain.Entities.Accounts.Currency;
-using AccountType = FinancePlanner.Domain.Entities.Accounts.AccountType;
 
 namespace FinancePlanner.API.Endpoints;
 
-public static class AccountEndpoints
+public static class TransactionEndpoints
 {
-    public static void MapAccountEndpoints(this IEndpointRouteBuilder app)
+    public static void MapTransactionEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/accounts");
-        group.MapGet("/", GetAll).RequireAuthorization().WithName("GetAccounts");
-        group.MapGet("/{id}", Get).RequireAuthorization().WithName("GetAccount");
-        group.MapPost("/", Create).RequireAuthorization().WithName("CreateAccount");
-        group.MapPut("/{id}", Update).RequireAuthorization().WithName("UpdateAccount");
-        group.MapDelete("/{id}", Delete).RequireAuthorization().WithName("DeleteAccount");
+        var group = app.MapGroup("/transactions");
+        group.MapGet("/", GetAll).RequireAuthorization().WithName("GetTransactions");
+        group.MapGet("/{id}", Get).RequireAuthorization().WithName("GetTransaction");
+        group.MapPost("/", Create).RequireAuthorization().WithName("CreateTransaction");
+        group.MapPut("/{id}", Update).RequireAuthorization().WithName("UpdateTransaction");
+        group.MapDelete("/{id}", Delete).RequireAuthorization().WithName("DeleteTransaction");
     }
 
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AccountModel>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TransactionModel>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     private static async Task<IResult> GetAll(
         [FromServices] ApplicationDbContext db,
         ClaimsPrincipal user,
         CancellationToken cancellationToken = default)
     {
-        var accounts = await db.Accounts
+        var transactions = await db.Transactions
             .Where(x => x.UserId == user.FindFirstValue(ClaimTypes.NameIdentifier))
-            .Select(x => new AccountModel(x))
+            .Select(x => new TransactionModel(x))
             .ToArrayAsync(cancellationToken);
 
-        return Results.Ok(accounts);
+        return Results.Ok(transactions);
     }
 
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AccountModel))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TransactionModel))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     private static async Task<IResult> Get([FromRoute] long id,
@@ -46,81 +43,79 @@ public static class AccountEndpoints
         ClaimsPrincipal user,
         CancellationToken cancellationToken = default)
     {
-        var account =
-            await db.Accounts
+        var transaction =
+            await db.Transactions
                 .Where(x => x.UserId == user.FindFirstValue(ClaimTypes.NameIdentifier))
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (account == null)
+        if (transaction == null)
         {
             return Results.NotFound();
         }
 
-        return Results.Ok(new AccountModel(account));
+        return Results.Ok(new TransactionModel(transaction));
     }
 
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Created<AccountModel>))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Created<TransactionModel>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(BadRequest))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    private static async Task<IResult> Create([FromBody] CreateAccountRequest request,
+    private static async Task<IResult> Create([FromBody] CreateTransactionRequest request,
         [FromServices] ApplicationDbContext db,
         ClaimsPrincipal user,
         CancellationToken cancellationToken = default)
     {
-        var existingAccount = await db.Accounts
-            .Where(x => x.UserId == user.FindFirstValue(ClaimTypes.NameIdentifier))
-            .FirstOrDefaultAsync(x => x.Name == request.Name, cancellationToken);
-        if (existingAccount != null)
+        var transaction = new Transaction
         {
-            return Results.BadRequest(new { message = "Account already exists." });
-        }
-
-        var account = new Account
-        {
-            Name = request.Name,
-            Currency = (Currency)request.Currency,
-            Type = (AccountType)request.Type,
-            StartingBalance = request.StartingBalance,
+            Description = request.Description,
+            Type = request.Type,
+            Amount = request.Amount,
+            FromAccountId = request.FromAccountId,
+            ToAccountId = request.ToAccountId,
+            RecurrenceId = request.RecurrenceId,
+            Date = request.Date,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow,
             UserId = user.FindFirstValue(ClaimTypes.NameIdentifier)!
         };
 
-        await db.Accounts.AddAsync(account, cancellationToken);
+        await db.Transactions.AddAsync(transaction, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
 
-        return Results.CreatedAtRoute("GetAccount", new { id = account.Id}, new AccountModel(account));
+        return Results.CreatedAtRoute("GetTransaction", new { id = transaction.Id }, new TransactionModel(transaction));
     }
 
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AccountModel))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TransactionModel))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(BadRequest))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     private static async Task<IResult> Update(
         [FromRoute] long id,
-        [FromBody] UpdateAccountRequest request,
+        [FromBody] UpdateTransactionRequest request,
         [FromServices] ApplicationDbContext db,
         ClaimsPrincipal user,
         CancellationToken cancellationToken = default)
     {
-        var account = await db.Accounts
+        var transaction = await db.Transactions
             .Where(x => x.UserId == user.FindFirstValue(ClaimTypes.NameIdentifier))
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-        if (account == null)
+        if (transaction == null)
         {
             return Results.NotFound();
         }
         
-        account.Name = request.Name;
-        account.Currency = (Currency)request.Currency;
-        account.Type = (AccountType)request.Type;
-        account.StartingBalance = request.StartingBalance;
-        account.UpdatedAt = DateTimeOffset.UtcNow;
+        transaction.Description = request.Description;
+        transaction.Type = request.Type;
+        transaction.Amount = request.Amount;
+        transaction.FromAccountId = request.FromAccountId;
+        transaction.ToAccountId = request.ToAccountId;
+        transaction.RecurrenceId = request.RecurrenceId;
+        transaction.Date = request.Date;
+        transaction.UpdatedAt = DateTimeOffset.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);
-        return Results.Ok(new AccountModel(account));
+        return Results.Ok(new TransactionModel(transaction));
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -132,17 +127,18 @@ public static class AccountEndpoints
         ClaimsPrincipal user,
         CancellationToken cancellationToken = default)
     {
-        var account = await db.Accounts
+        var transaction = await db.Transactions
             .Where(x => x.UserId == user.FindFirstValue(ClaimTypes.NameIdentifier))
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-        if (account == null)
+        if (transaction == null)
         {
             return Results.NotFound();
         }
 
-        db.Remove(account);
+        db.Remove(transaction);
         await db.SaveChangesAsync(cancellationToken);
         return Results.Ok();
     }
 }
+

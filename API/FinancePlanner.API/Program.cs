@@ -104,5 +104,6 @@ app.UseAuthorization();
 app.MapAuthEndpoints();
 app.MapAccountEndpoints();
 app.MapRecurringPaymentEndpoints();
+app.MapTransactionEndpoints();
 
 app.Run();

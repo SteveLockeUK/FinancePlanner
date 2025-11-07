@@ -4,7 +4,7 @@ import Card from '@/components/ui/Card';
 import type Account from '@/data/models/Accounts/Account';
 import type RecurringPayment from '@/data/models/RecurringPayments/RecurringPayment';
 import type Transaction from '@/data/models/Transactions/Transaction';
-import {transactionStore} from '@/data/stores/TransactionStore';
+import {transactionService} from '@/data/services/TransactionService';
 import RecurringPaymentTransactionDialog from '@/components/recurring-payments/RecurringPaymentTransactionDialog';
 import {recurringPaymentService} from "@/data/services/RecurringPaymentService.ts";
 import {accountService} from '@/data/services/AccountService';
@@ -80,9 +80,13 @@ function calculateAccountBalance(account: Account, transactions: Transaction[]):
 }
 
 function calculateExpectedBalance(account: Account, balance: number, recurringPayments: RecurringPayment[], transactions: Transaction[], projectionDate: Date): number {
+    const today = new Date();
+    today.setUTCHours(0,0,0,0);
+    transactions = transactions.filter(t => t.date >= today && t.date < projectionDate)
     var transactionSum = transactions
-        .filter(t => t.date >= new Date() && t.date < projectionDate)
-        .reduce((acc, t) => t.toAccountId === account.id ? acc + t.amount : acc - t.amount, 0);
+        .reduce((acc, t) => {
+            return t.toAccountId === account.id ? acc + t.amount : acc - t.amount;
+        }, 0);
 
     var recurringPaymentSum = 0;
     recurringPayments.forEach(rp => {
@@ -112,6 +116,7 @@ export default function Dashboard() {
     // Default to first of next month
     const getDefaultDate = () => {
         const today = new Date();
+        today.setUTCHours(0,0,0,0);
         const firstOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
         return firstOfNextMonth.toISOString().split('T')[0];
     };
@@ -139,10 +144,19 @@ export default function Dashboard() {
         });
     }
 
+    const fetchTransactions = async () => {
+        try {
+            const transactions = await transactionService.getTransactions();
+            setTransactions(transactions);
+        } catch (error) {
+            console.error('Failed to fetch transactions:', error);
+        }
+    }
+
     useEffect(() => {
         onProjectionDatePickerValueChanged(projectionDatePickerValue);
         fetchAccounts();
-        setTransactions(transactionStore.getTransactions());
+        fetchTransactions();
         fetchRecurringPayments();
     }, []);
 
@@ -159,7 +173,7 @@ export default function Dashboard() {
 
     const handleGenerateRecurringTransactions = async () => {
         setIsGenerateRecurringTransactionsDialogOpen(false);
-        setTransactions(transactionStore.getTransactions());
+        await fetchTransactions();
         await fetchRecurringPayments();
     }
 

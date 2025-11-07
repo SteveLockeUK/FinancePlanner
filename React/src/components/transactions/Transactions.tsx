@@ -3,21 +3,51 @@ import Title from '@/components/ui/Title';
 import DataTable, { type ColumnDef } from '@/components/ui/DataTable';
 import type Transaction from '@/data/models/Transactions/Transaction';
 import { type TransactionType, TRANSACTION_TYPES } from '@/data/models/Transactions/TransactionTypes';
-import { transactionStore } from '@/data/stores/TransactionStore';
-import { accountStore } from '@/data/stores/AccountStore';
+import { transactionService } from '@/data/services/TransactionService';
+import { accountService } from '@/data/services/AccountService';
 import type Account from '@/data/models/Accounts/Account';
 import type RecurringPayment from '@/data/models/RecurringPayments/RecurringPayment';
 import { recurringPaymentStore } from '@/data/stores/RecurringPaymentStore';
 
 export default function Transactions() {
-    const [rows, setRows] = useState<Transaction[]>(transactionStore.getTransactions());
-    const [accounts, setAccounts] = useState<Account[]>(accountStore.getAccounts());
-    const [recurringPayments, setRecurringPayments] = useState<RecurringPayment[]>(recurringPaymentStore.getRecurringPayments());
+    const [rows, setRows] = useState<Transaction[]>([]);
+    const [accounts, setAccounts] = useState<Account[]>([]);
+    const [recurringPayments, setRecurringPayments] = useState<RecurringPayment[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    
+    const fetchTransactions = async () => {
+        try {
+            const transactions = await transactionService.getTransactions();
+            setRows(transactions);
+        } catch (error) {
+            console.error('Failed to fetch transactions:', error);
+        }
+    }
+
+    const fetchAccounts = async () => {
+        try {
+            const accountsData = await accountService.getAccounts();
+            setAccounts(accountsData);
+        } catch (error) {
+            console.error('Failed to fetch accounts:', error);
+        }
+    }
+
+    const fetchRecurringPayments = () => {
+        setRecurringPayments(recurringPaymentStore.getRecurringPayments());
+    }
     
     useEffect(() => {
-        setRows(transactionStore.getTransactions());
-        setAccounts(accountStore.getAccounts());
-        setRecurringPayments(recurringPaymentStore.getRecurringPayments());
+        const loadData = async () => {
+            setLoading(true);
+            await Promise.all([
+                fetchTransactions(),
+                fetchAccounts(),
+                fetchRecurringPayments()
+            ]);
+            setLoading(false);
+        };
+        loadData();
     }, []);
 
     const columns: ColumnDef<Transaction>[] = [
@@ -151,35 +181,62 @@ export default function Transactions() {
         }
     ];
 
-    const handleSaveAdd = (transactionData: Partial<Transaction>) => {
-        const newTransaction: Omit<Transaction, 'id'> = {
-            userId: '',
-            description: transactionData.description || '',
-            type: (transactionData.type as TransactionType) || 'Expense',
-            amount: transactionData.amount || 0,
-            date: transactionData.date || new Date(),
-            fromAccountId: Number(transactionData.fromAccountId) || undefined,
-            toAccountId: Number(transactionData.toAccountId) || undefined,
-            categoryId: Number(transactionData.categoryId) || undefined,
-            recurrenceId: Number(transactionData.recurrenceId) || undefined,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-        transactionStore.addTransaction(newTransaction);
-        setRows(transactionStore.getTransactions());
+    const handleSaveAdd = async (transactionData: Partial<Transaction>) => {
+        try {
+            const newTransaction: Partial<Transaction> = {
+                description: transactionData.description || '',
+                type: (transactionData.type as TransactionType) || 'Expense',
+                amount: transactionData.amount || 0,
+                date: transactionData.date || new Date(),
+                fromAccountId: Number(transactionData.fromAccountId) || undefined,
+                toAccountId: Number(transactionData.toAccountId) || undefined,
+                categoryId: Number(transactionData.categoryId) || undefined,
+                recurrenceId: Number(transactionData.recurrenceId) || undefined,
+            };
+            await transactionService.createTransaction(newTransaction);
+            // Refetch transactions to get the updated list
+            const transactions = await transactionService.getTransactions();
+            setRows(transactions);
+        } catch (error) {
+            console.error('Failed to create transaction:', error);
+            throw error;
+        }
     }
 
-    const handleSaveEdit = (transaction: Transaction) => {
-        transactionStore.updateTransaction(transaction.id, {
-            ...transaction,
-            updatedAt: new Date()
-        });
-        setRows(transactionStore.getTransactions());
+    const handleSaveEdit = async (transaction: Transaction) => {
+        try {
+            await transactionService.updateTransaction(transaction.id, {
+                ...transaction,
+                updatedAt: new Date()
+            });
+            // Refetch transactions to get the updated list
+            const transactions = await transactionService.getTransactions();
+            setRows(transactions);
+        } catch (error) {
+            console.error('Failed to update transaction:', error);
+            throw error;
+        }
     }
 
-    const handleDelete = (transaction: Transaction) => {
-        transactionStore.deleteTransaction(transaction.id);
-        setRows(transactionStore.getTransactions());
+    const handleDelete = async (transaction: Transaction) => {
+        try {
+            await transactionService.deleteTransaction(transaction.id);
+            // Refetch transactions to get the updated list
+            const transactions = await transactionService.getTransactions();
+            setRows(transactions);
+        } catch (error) {
+            console.error('Failed to delete transaction:', error);
+            throw error;
+        }
+    }
+
+    if (loading) {
+        return (
+            <>
+                <Title text='Transactions' />
+                <div>Loading transactions...</div>
+            </>
+        );
     }
 
     return (

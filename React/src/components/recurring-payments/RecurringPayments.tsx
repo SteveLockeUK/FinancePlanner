@@ -120,6 +120,7 @@ export default function RecurringPayments() {
             fieldConfig: {
                 required: false,
                 type: 'date',
+                defaultValue: '',
             },
             render: (value: Date) => value ? new Date(value).toLocaleDateString('en-GB') : '',
         },
@@ -132,6 +133,7 @@ export default function RecurringPayments() {
             fieldConfig: {
                 type: 'checkbox',
                 required: false,
+                defaultValue: true,
             },
             render: (value: boolean) => value ? 'Yes' : 'No',
         },

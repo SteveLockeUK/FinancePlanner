@@ -1,4 +1,5 @@
 ﻿using FinancePlanner.Domain.Entities.Accounts;
+using FinancePlanner.Domain.Entities.Transactions;
 
 namespace FinancePlanner.Domain.Entities.RecurringPayments;
 
@@ -23,4 +24,5 @@ public class RecurringPayment
     public DateTimeOffset? NextPaymentDate { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public IEnumerable<Transaction> Transactions { get; set; } = new List<Transaction>();
 }

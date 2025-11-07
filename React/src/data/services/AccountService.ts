@@ -18,8 +18,7 @@ class AccountService {
     }
     
     async createAccount(account: Partial<Account>): Promise<Account> {
-        let request = JSON.stringify(account);
-        debugger;
+        let request = JSON.stringify(account);        
         const response = await fetch('api/accounts', {
             method: 'POST',
             credentials: 'include',

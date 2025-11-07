@@ -16,11 +16,11 @@ public static class RecurringPaymentEndpoints
     public static void MapRecurringPaymentEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/recurring-payments");
-        group.MapGet("/", GetAll).RequireAuthorization();
-        group.MapGet("/{id}", Get).RequireAuthorization();
-        group.MapPost("/", Create).RequireAuthorization();
-        group.MapPut("/{id}", Update).RequireAuthorization();
-        group.MapDelete("/{id}", Delete).RequireAuthorization();
+        group.MapGet("/", GetAll).RequireAuthorization().WithName("GetRecurringPayments");
+        group.MapGet("/{id}", Get).RequireAuthorization().WithName("GetRecurringPayment");
+        group.MapPost("/", Create).RequireAuthorization().WithName("CreateRecurringPayment");
+        group.MapPut("/{id}", Update).RequireAuthorization().WithName("UpdateRecurringPayment");
+        group.MapDelete("/{id}", Delete).RequireAuthorization().WithName("DeleteRecurringPayment");
     }
     
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<RecurringPaymentModel>))]
@@ -100,7 +100,7 @@ public static class RecurringPaymentEndpoints
         await db.AddAsync(recurringPayment, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
         
-        return Results.Created(new Uri($"recurring-payments/{recurringPayment.Id}"), new RecurringPaymentModel(recurringPayment));
+        return Results.CreatedAtRoute("GetRecurringPayment", new {id = recurringPayment.Id}, new RecurringPaymentModel(recurringPayment));
     }
     
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RecurringPaymentModel))]

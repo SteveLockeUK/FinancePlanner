@@ -23,7 +23,6 @@ class RecurringPaymentService {
 
     async createRecurringPayment(paymentData: Partial<RecurringPayment>): Promise<RecurringPayment> {
         let request = JSON.stringify(paymentData);
-        debugger;
         const response = await fetch('api/recurring-payments', {
             method: 'POST',
             credentials: 'include',
