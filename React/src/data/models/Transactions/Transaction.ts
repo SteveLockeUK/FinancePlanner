@@ -1,7 +1,7 @@
 import type { TransactionType } from "./TransactionTypes"
+import type BaseEntity from "../BaseEntity";
 
-export default interface Transaction {
-    id: number;
+export default interface Transaction extends BaseEntity {
     userId: string;
     description: string;
     type: TransactionType;
@@ -12,5 +12,4 @@ export default interface Transaction {
     recurrenceId?: number;
     date: Date; 
     createdAt: Date;
-    updatedAt?: Date;
 }

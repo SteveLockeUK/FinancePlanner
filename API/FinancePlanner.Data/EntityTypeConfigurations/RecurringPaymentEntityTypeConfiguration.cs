@@ -1,6 +1,7 @@
 ﻿using FinancePlanner.Domain.Entities.RecurringPayments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FinancePlanner.Data.EntityTypeConfigurations;
 
@@ -26,9 +27,11 @@ public class RecurringPaymentEntityTypeConfiguration : IEntityTypeConfiguration<
             .IsRequired();
         
         builder.Property(x => x.StartDate)
+            .HasConversion<DateTimeOffsetToStringConverter>()
             .IsRequired();
         
         builder.Property(x => x.EndDate)
+            .HasConversion<DateTimeOffsetToStringConverter>()
             .IsRequired(false);
         
         builder.HasOne(x => x.FromAccount)
@@ -49,5 +52,13 @@ public class RecurringPaymentEntityTypeConfiguration : IEntityTypeConfiguration<
         
         builder.HasIndex(x => x.Name, "IX_RecurringPayments_Name")
             .IsUnique();
+        
+        builder.Property(x => x.CreatedAt)
+            .HasConversion<DateTimeOffsetToStringConverter>()
+            .IsRequired();
+
+        builder.Property(x => x.UpdatedAt)
+            .HasConversion<DateTimeOffsetToStringConverter>()
+            .IsRequired();
     }
 }

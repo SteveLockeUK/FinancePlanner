@@ -2,6 +2,7 @@
 using FinancePlanner.Domain.Entities.Accounts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FinancePlanner.Data.EntityTypeConfigurations;
 
@@ -28,12 +29,15 @@ public class AccountEntityTypeConfiguration : IEntityTypeConfiguration<Account>
             .HasDefaultValue(0);
 
         builder.Property(x => x.CreatedAt)
+            .HasConversion<DateTimeOffsetToStringConverter>()
             .IsRequired();
         
         builder.Property(x => x.UpdatedAt)
+            .HasConversion<DateTimeOffsetToStringConverter>()
             .IsRequired();
 
         builder.Property(x => x.ArchivedAt)
+            .HasConversion<DateTimeOffsetToStringConverter>()
             .IsRequired(false);
 
         builder.HasIndex(a => a.Name, "IX_Accounts_Name")

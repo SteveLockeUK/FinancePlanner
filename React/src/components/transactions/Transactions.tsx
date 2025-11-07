@@ -7,7 +7,7 @@ import { transactionService } from '@/data/services/TransactionService';
 import { accountService } from '@/data/services/AccountService';
 import type Account from '@/data/models/Accounts/Account';
 import type RecurringPayment from '@/data/models/RecurringPayments/RecurringPayment';
-import { recurringPaymentStore } from '@/data/stores/RecurringPaymentStore';
+import { recurringPaymentService } from '@/data/services/RecurringPaymentService';
 
 export default function Transactions() {
     const [rows, setRows] = useState<Transaction[]>([]);
@@ -33,8 +33,13 @@ export default function Transactions() {
         }
     }
 
-    const fetchRecurringPayments = () => {
-        setRecurringPayments(recurringPaymentStore.getRecurringPayments());
+    const fetchRecurringPayments = async () => {
+        try {
+            const payments = await recurringPaymentService.getRecurringPayments();
+            setRecurringPayments(payments);
+        } catch (error) {
+            console.error('Failed to fetch recurring payments:', error);
+        }
     }
     
     useEffect(() => {
@@ -48,6 +53,40 @@ export default function Transactions() {
             setLoading(false);
         };
         loadData();
+
+        // Listen for updates from SignalR and service worker
+        const handleTransactionsUpdated = async () => {
+            await fetchTransactions();
+        };
+
+        const handleAccountsUpdated = async () => {
+            await fetchAccounts();
+        };
+
+        const handleRecurringPaymentsUpdated = async () => {
+            await fetchRecurringPayments();
+        };
+
+        window.addEventListener('transactionsUpdated', handleTransactionsUpdated);
+        window.addEventListener('accountsUpdated', handleAccountsUpdated);
+        window.addEventListener('recurringPaymentsUpdated', handleRecurringPaymentsUpdated);
+        window.addEventListener('dataSyncComplete', (event: any) => {
+            if (event.detail?.entityType === 'transactions' || !event.detail?.entityType) {
+                fetchTransactions();
+            }
+            if (event.detail?.entityType === 'accounts' || !event.detail?.entityType) {
+                fetchAccounts();
+            }
+            if (event.detail?.entityType === 'recurringPayments' || !event.detail?.entityType) {
+                fetchRecurringPayments();
+            }
+        });
+
+        return () => {
+            window.removeEventListener('transactionsUpdated', handleTransactionsUpdated);
+            window.removeEventListener('accountsUpdated', handleAccountsUpdated);
+            window.removeEventListener('recurringPaymentsUpdated', handleRecurringPaymentsUpdated);
+        };
     }, []);
 
     const columns: ColumnDef<Transaction>[] = [

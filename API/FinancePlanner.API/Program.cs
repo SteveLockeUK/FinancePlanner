@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using FinancePlanner.Data;
 using FinancePlanner.API.Endpoints;
+using FinancePlanner.API.Hubs;
 using FinancePlanner.Domain.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -73,6 +74,12 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddAuthorization();
 
+// Add SignalR
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+});
+
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -105,5 +112,9 @@ app.MapAuthEndpoints();
 app.MapAccountEndpoints();
 app.MapRecurringPaymentEndpoints();
 app.MapTransactionEndpoints();
+app.MapSyncEndpoints();
+
+// Map SignalR hub
+app.MapHub<SyncHub>("/hubs/sync").RequireAuthorization();
 
 app.Run();

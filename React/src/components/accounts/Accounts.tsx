@@ -11,7 +11,7 @@ export default function Accounts() {
     const [rows, setRows] = useState<Account[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     
-    // Load accounts from API on mount
+    // Load accounts from IndexedDB on mount and listen for updates
     useEffect(() => {
         const fetchAccounts = async () => {
             try {
@@ -26,6 +26,23 @@ export default function Accounts() {
         };
         
         fetchAccounts();
+
+        // Listen for updates from SignalR and service worker
+        const handleAccountsUpdated = async () => {
+            await fetchAccounts();
+        };
+
+        window.addEventListener('accountsUpdated', handleAccountsUpdated);
+        window.addEventListener('dataSyncComplete', (event: any) => {
+            if (event.detail?.entityType === 'accounts' || !event.detail?.entityType) {
+                fetchAccounts();
+            }
+        });
+
+        return () => {
+            window.removeEventListener('accountsUpdated', handleAccountsUpdated);
+            window.removeEventListener('dataSyncComplete', handleAccountsUpdated);
+        };
     }, []);
 
     const columns: ColumnDef<Account>[] = [
@@ -112,14 +129,14 @@ export default function Accounts() {
     const handleSaveAdd = async (accountData: Partial<Account>) => {
         try {
             const newAccount: Partial<Account> = {
-                id: 0, // Will be set by the API
+                id: 0, // Will be set by IndexedDB service (temporary negative ID)
                 name: accountData.name || '',
                 type: (accountData.type as AccountType) || 'Current',
                 currency: (accountData.currency as Currency) || 'GBP',
                 startingBalance: accountData.startingBalance || 0
             };
             await accountService.createAccount(newAccount);
-            // Refetch accounts to get the updated list
+            // Refetch accounts from IndexedDB
             const accounts = await accountService.getAccounts();
             setRows(accounts);
         } catch (error) {
@@ -134,7 +151,7 @@ export default function Accounts() {
                 ...account,
                 updatedAt: new Date()
             });
-            // Refetch accounts to get the updated list
+            // Refetch accounts from IndexedDB
             const accounts = await accountService.getAccounts();
             setRows(accounts);
         } catch (error) {
@@ -146,7 +163,7 @@ export default function Accounts() {
     const handleDelete = async (account: Account) => {
         try {
             await accountService.deleteAccount(account.id);
-            // Refetch accounts to get the updated list
+            // Refetch accounts from IndexedDB
             const accounts = await accountService.getAccounts();
             setRows(accounts);
         } catch (error) {

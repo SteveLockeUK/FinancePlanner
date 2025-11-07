@@ -1,6 +1,7 @@
 ﻿using FinancePlanner.Domain.Entities.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FinancePlanner.Data.EntityTypeConfigurations;
 
@@ -40,12 +41,15 @@ public class TransactionEntityTypeConfiguration : IEntityTypeConfiguration<Trans
             .OnDelete(DeleteBehavior.ClientSetNull);
         
         builder.Property(x => x.Date)
+            .HasConversion<DateTimeOffsetToStringConverter>()
             .IsRequired();
         
         builder.Property(x => x.CreatedAt)
+            .HasConversion<DateTimeOffsetToStringConverter>()
             .IsRequired();
         
         builder.Property(x => x.UpdatedAt)
+            .HasConversion<DateTimeOffsetToStringConverter>()
             .IsRequired();
     }
 }

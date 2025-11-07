@@ -32,7 +32,32 @@ export default function RecurringPayments() {
     }
     
     useEffect(() => {
-        fetchAccounts().then(() => fetchRecurringPayments());        
+        fetchAccounts().then(() => fetchRecurringPayments());
+
+        // Listen for updates from SignalR and service worker
+        const handleRecurringPaymentsUpdated = async () => {
+            await fetchRecurringPayments();
+        };
+
+        const handleAccountsUpdated = async () => {
+            await fetchAccounts();
+        };
+
+        window.addEventListener('recurringPaymentsUpdated', handleRecurringPaymentsUpdated);
+        window.addEventListener('accountsUpdated', handleAccountsUpdated);
+        window.addEventListener('dataSyncComplete', (event: any) => {
+            if (event.detail?.entityType === 'recurringPayments' || !event.detail?.entityType) {
+                fetchRecurringPayments();
+            }
+            if (event.detail?.entityType === 'accounts' || !event.detail?.entityType) {
+                fetchAccounts();
+            }
+        });
+
+        return () => {
+            window.removeEventListener('recurringPaymentsUpdated', handleRecurringPaymentsUpdated);
+            window.removeEventListener('accountsUpdated', handleAccountsUpdated);
+        };
     }, []);
 
     const columns: ColumnDef<RecurringPayment>[] = [

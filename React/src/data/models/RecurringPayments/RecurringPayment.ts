@@ -1,8 +1,8 @@
 import type { RecurringPaymentFrequency } from "./RecurringPaymentFrequencies";
 import type { RecurringPaymentType } from "./RecurringPaymentTypes";
+import type BaseEntity from "../BaseEntity";
 
-export default interface RecurringPayment {
-    id: number;
+export default interface RecurringPayment extends BaseEntity {
     userId: string;
     name: string;
     description?: string | null;
@@ -18,5 +18,4 @@ export default interface RecurringPayment {
     lastGeneratedAt?: Date | null;
     nextPaymentDate?: Date | null;
     createdAt: Date;
-    updatedAt?: Date | null;
 }
