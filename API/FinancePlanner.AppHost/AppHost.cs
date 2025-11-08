@@ -6,7 +6,7 @@ var api = builder.AddProject<Projects.FinancePlanner_API>("financeplannerapi")
 builder.AddNpmApp("financeplannerweb", "../../React", "dev")
     .WithReference(api)
     .WithEnvironment("BROWSER", "none")
-    .WithHttpEndpoint(env: "VITE_PORT")
+    .WithHttpEndpoint(port: 80, env: "VITE_PORT")
     .WithExternalHttpEndpoints()
     .PublishAsDockerFile();
 

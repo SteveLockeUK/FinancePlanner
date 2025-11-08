@@ -3,18 +3,12 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import '@/index.css'
 import App from '@/App.tsx'
-import { registerServiceWorker } from '@/utils/serviceWorkerRegistration'
-import { signalRService } from '@/data/services/SignalRService'
-import { performInitialSync } from '@/utils/initialSync'
+import { authService } from '@/data/services/authService'
 
-// Register service worker, perform initial sync, and start SignalR
-if (typeof window !== 'undefined') {
-    registerServiceWorker();
-    // Perform initial sync and start SignalR connection after a short delay to ensure auth is ready
-    setTimeout(async () => {
-        await performInitialSync();
-        signalRService.start();
-    }, 1000);
+// Register service worker and initialize SignalR if user is already authenticated
+if (typeof window !== 'undefined') {    
+    // Check if user is already authenticated (e.g., after page refresh) and start SignalR
+    authService.initializeIfAuthenticated();
 }
 
 createRoot(document.getElementById('root')!).render(

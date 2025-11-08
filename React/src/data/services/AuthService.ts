@@ -1,3 +1,7 @@
+import { registerServiceWorker } from '@/utils/serviceWorkerRegistration';
+import { signalRService } from './SignalRService';
+import { performInitialSync } from '@/utils/initialSync';
+
 export interface User {
   id: string;
   email: string;
@@ -21,6 +25,35 @@ export interface RegisterCredentials {
  * In a real app, this would make API calls to your backend
  */
 class AuthService {
+  private signalRInitialized = false;
+
+  /**
+   * Initialize SignalR and sync if user is already authenticated
+   * This is called on app load to handle page refreshes
+   */
+  async initializeIfAuthenticated(): Promise<void> {
+    if (this.isAuthenticated() && !this.signalRInitialized) {
+      registerServiceWorker();
+      await this.startSignalRAndSync();
+    }
+  }
+
+  /**
+   * Start SignalR connection and perform initial sync
+   */
+  private async startSignalRAndSync(): Promise<void> {
+    try {
+      await performInitialSync();
+      await signalRService.start();
+      // Only mark as initialized if start was successful
+      // SignalRService.start() doesn't throw if connection already exists, so this is safe
+      this.signalRInitialized = true;
+    } catch (error) {
+      console.error('Error starting SignalR and sync:', error);
+      this.signalRInitialized = false;
+    }
+  }
+
   /**
    * Check if user is authenticated by checking for auth cookie
    */
@@ -51,6 +84,10 @@ class AuthService {
 
     const user = await response.json() as User;
     localStorage.setItem('FinancePlanner.User', JSON.stringify(user));
+    
+    // Start SignalR and perform initial sync after successful login
+    await this.startSignalRAndSync();
+    
     return user;
   }
 
@@ -76,7 +113,17 @@ class AuthService {
     }
   }
   
-  async logout(): Promise<any> {    
+  async logout(): Promise<any> {
+    // Stop SignalR connection before logging out
+    if (this.signalRInitialized) {
+      try {
+        await signalRService.stop();
+        this.signalRInitialized = false;
+      } catch (error) {
+        console.error('Error stopping SignalR connection:', error);
+      }
+    }
+    
     const response = await fetch('api/auth/logout', {
       method: 'POST',
       credentials: 'include',
