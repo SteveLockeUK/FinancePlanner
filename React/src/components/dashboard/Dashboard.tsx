@@ -81,7 +81,7 @@ function calculateAccountBalance(account: Account, transactions: Transaction[]):
 
 function calculateExpectedBalance(account: Account, balance: number, recurringPayments: RecurringPayment[], transactions: Transaction[], projectionDate: Date): number {
     const today = new Date();
-    today.setUTCHours(0,0,0,0);
+    today.setUTCHours(23,59,59,999);
     transactions = transactions.filter(t => t.date >= today && t.date < projectionDate)
     var transactionSum = transactions
         .reduce((acc, t) => {
