@@ -12,7 +12,9 @@ builder.AddServiceDefaults();
 
 // Add services to the container
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// Add Swagger/OpenAPI generation
+builder.Services.AddOpenApi();
 
 // Configure SQLite Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -96,7 +98,7 @@ app.MapDefaultEndpoints();
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    app.MapOpenApi("swagger/v1/swagger.json");
     app.UseSwaggerUI();
 }
 
