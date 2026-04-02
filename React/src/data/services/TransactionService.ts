@@ -22,7 +22,8 @@ class TransactionService {
     
     async getTransactions(): Promise<Transaction[]> {
         await this.init();
-        return await indexedDBService.getAll<Transaction>(STORES.TRANSACTIONS);
+        const transactions = await indexedDBService.getAll<Transaction>(STORES.TRANSACTIONS);
+        return transactions.filter(t => t.syncStatus !== 'deleted');
     }
 
     async createTransaction(transactionData: Partial<Transaction>): Promise<Transaction> {

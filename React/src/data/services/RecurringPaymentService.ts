@@ -24,7 +24,8 @@ class RecurringPaymentService {
 
     async getRecurringPayments(): Promise<RecurringPayment[]> {
         await this.init();
-        return await indexedDBService.getAll<RecurringPayment>(STORES.RECURRING_PAYMENTS);
+        const payments = await indexedDBService.getAll<RecurringPayment>(STORES.RECURRING_PAYMENTS);
+        return payments.filter(p => p.syncStatus !== 'deleted');
     }
 
     async createRecurringPayment(paymentData: Partial<RecurringPayment>): Promise<RecurringPayment> {

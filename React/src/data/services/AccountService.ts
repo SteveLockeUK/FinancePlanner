@@ -9,7 +9,8 @@ class AccountService {
 
     async getAccounts(): Promise<Account[]> {
         await this.init();
-        return await indexedDBService.getAll<Account>(STORES.ACCOUNTS);
+        const accounts = await indexedDBService.getAll<Account>(STORES.ACCOUNTS);
+        return accounts.filter(a => a.syncStatus !== 'deleted');
     }
     
     async createAccount(accountData: Partial<Account>): Promise<Account> {
